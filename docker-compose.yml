@@ -1,0 +1,46 @@
+version: "3"
+
+services:
+  db_xss:
+    image: mysql:5.7
+    ports:
+      - '3310:3306'
+    environment:
+      MYSQL_DATABASE: "${DB_NAME}"
+#      MYSQL_USER: 'root'
+      MYSQL_PASSWORD: "${DB_PASSWORD}"
+      MYSQL_ROOT_PASSWORD: "${DB_ROOT_PASSWORD}"
+      MYSQL_HOST: ''
+    networks:
+      - openlxp
+  app:
+    container_name: openlxp-xss
+    build:
+      context: .
+    ports:
+      - "8080:8020"
+    command: >
+      sh -c ". /opt/app/start-app.sh"
+    environment:
+      DB_NAME: "${DB_NAME}"
+      DB_USER: "${DB_USER}"
+      DB_PASSWORD: "${DB_PASSWORD}"
+      DB_HOST: "${DB_HOST}"
+      DJANGO_SUPERUSER_USERNAME: "${DJANGO_SUPERUSER_USERNAME}"
+      DJANGO_SUPERUSER_PASSWORD: "${DJANGO_SUPERUSER_PASSWORD}"
+      DJANGO_SUPERUSER_EMAIL: "${DJANGO_SUPERUSER_EMAIL}"
+      REQUESTS_CA_BUNDLE: '/etc/ssl/certs/ca-certificates.pem'
+      AWS_CA_BUNDLE: '/etc/ssl/certs/ca-certificates.pem'
+      SECRET_KEY_VAL: "${SECRET_KEY_VAL}"
+    volumes:
+      - ./app:/opt/app/openlxp-xss
+    depends_on:
+      - db_xss
+    networks:
+      - openlxp
+volumes:
+  data01:
+    driver: local
+networks:
+  openlxp:
+    external: true
