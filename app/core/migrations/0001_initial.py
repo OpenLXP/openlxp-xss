@@ -20,7 +20,7 @@ class Migration(migrations.Migration):
                 ('created', model_utils.fields.AutoCreatedField(default=django.utils.timezone.now, editable=False, verbose_name='created')),
                 ('modified', model_utils.fields.AutoLastModifiedField(default=django.utils.timezone.now, editable=False, verbose_name='modified')),
                 ('schema_name', models.CharField(max_length=255)),
-                ('schema_IRI', models.CharField(max_length=255)),
+                ('schema_iri', models.CharField(max_length=255)),
                 ('schema_metadata', models.FileField(upload_to='schemas/')),
                 ('status', models.CharField(max_length=50)),
             ],
