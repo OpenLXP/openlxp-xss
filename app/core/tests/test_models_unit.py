@@ -18,7 +18,7 @@ class ModelTests(SimpleTestCase):
         version = '1.0.0'
         major_version = 1
         minor_version = 0
-        patch = 0
+        patch_version = 0
 
         schema = SchemaLedger(schema_name=schema_name,
                               schema_iri=schema_iri,
@@ -27,7 +27,7 @@ class ModelTests(SimpleTestCase):
                               version=version,
                               major_version=major_version,
                               minor_version=minor_version,
-                              patch=patch)
+                              patch_version=patch_version)
 
         self.assertEqual(schema.schema_name, schema_name)
         self.assertEqual(schema.schema_iri, schema_iri)
@@ -36,7 +36,7 @@ class ModelTests(SimpleTestCase):
         self.assertEqual(schema.version, version)
         self.assertEqual(schema.major_version, major_version)
         self.assertEqual(schema.minor_version, minor_version)
-        self.assertEqual(schema.patch, patch)
+        self.assertEqual(schema.patch_version, patch_version)
 
     def test_transformation_ledger(self):
         """Test that creating a transformationLedger is successful"""

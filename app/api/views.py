@@ -43,7 +43,7 @@ def schemaledger_requests(request):
         # provided, we fetch the latest version
         if not version:
             querySet = querySet.order_by('-major_version', '-minor_version',
-                                         '-patch')
+                                         '-patch_version')
         else:
             querySet = querySet.filter(version=version)
 

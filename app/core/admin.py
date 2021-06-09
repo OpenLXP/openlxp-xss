@@ -8,7 +8,7 @@ from core.models import SchemaLedger, TransformationLedger
 class SchemaLedgerAdmin(admin.ModelAdmin):
     list_display = ('id', 'schema_name', 'schema_iri', 'status', 'version',)
     fields = [('schema_name', 'schema_iri', 'schema_file', 'status',),
-              ('major_version', 'minor_version', 'patch',)]
+              ('major_version', 'minor_version', 'patch_version',)]
 
 
 @admin.register(TransformationLedger)

@@ -26,7 +26,7 @@ class SchemaLedger(TimeStampedModel):
                                          "fields")
     major_version = models.SmallIntegerField()
     minor_version = models.SmallIntegerField()
-    patch = models.SmallIntegerField()
+    patch_version = models.SmallIntegerField()
 
     def clean(self):
         # store the contents of the file in the metadata field
@@ -40,7 +40,7 @@ class SchemaLedger(TimeStampedModel):
 
         # combine the versions
         version = str(self.major_version) + '.' + str(self.minor_version) \
-            + '.' + str(self.patch)
+            + '.' + str(self.patch_version)
         self.version = version
 
 
