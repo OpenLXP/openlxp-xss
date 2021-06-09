@@ -1,5 +1,6 @@
-import logging
 import json
+import logging
+
 from django.db import models
 from model_utils.models import TimeStampedModel
 
@@ -25,13 +26,13 @@ class SchemaLedger(TimeStampedModel):
                                          "fields")
     major_version = models.SmallIntegerField()
     minor_version = models.SmallIntegerField()
-    revision = models.SmallIntegerField()
+    patch = models.SmallIntegerField()
 
     def clean(self):
         # store the contents of the file in the metadata field
         if self.schema_file:
-            json_file = self.schema_file  
-            json_obj = json.load(json_file) # deserialises it
+            json_file = self.schema_file
+            json_obj = json.load(json_file)  # deserialises it
 
             self.metadata = json_obj
             json_file.close()
@@ -39,7 +40,7 @@ class SchemaLedger(TimeStampedModel):
 
         # combine the versions
         version = str(self.major_version) + '.' + str(self.minor_version) \
-            + '.' + str(self.revision)
+            + '.' + str(self.patch)
         self.version = version
 
 
@@ -50,23 +51,26 @@ class TransformationLedger(TimeStampedModel):
 
     source_schema_name = models.CharField(max_length=255)
     target_schema_name = models.CharField(max_length=255)
-    source_schema_version = models.CharField(max_length=6,
-                               help_text="version of the source schema")
-    target_schema_version = models.CharField(max_length=6,
-                               help_text="version of the target schema")
+    source_schema_version = \
+        models.CharField(max_length=6,
+                         help_text="version of the source schema")
+    target_schema_version = \
+        models.CharField(max_length=6,
+                         help_text="version of the target schema")
     schema_mapping_file = models.FileField(upload_to='schemas/',
-                                   null=True,
-                                   blank=True)
+                                           null=True,
+                                           blank=True)
+    schema_mapping = \
+        models.JSONField(blank=True,
+                         help_text="auto populated from uploaded file")
     status = models.CharField(max_length=10,
                               choices=SCHEMA_STATUS_CHOICES)
-    schema_mapping = models.JSONField(blank=True,
-                                help_text="auto populated from uploaded file")
 
     def clean(self):
         # store the contents of the file in the schema_mapping field
         if self.schema_mapping_file:
-            json_file = self.schema_mapping_file  
-            json_obj = json.load(json_file) # deserialises it
+            json_file = self.schema_mapping_file
+            json_obj = json.load(json_file)  # deserialises it
 
             self.schema_mapping = json_obj
             json_file.close()

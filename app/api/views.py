@@ -25,12 +25,12 @@ def schemaledger_requests(request):
 
     if not name:
         messages.append("Error; query parameter 'name' is required")
-    
+
     if len(messages) == 0:
         # look for a model with the provided name
         querySet = SchemaLedger.objects.all()\
             .filter(schema_name=name)
-        
+
         if not querySet:
             messages.append("Error; no schema found with the name '" +
                             name + "'")
@@ -38,12 +38,12 @@ def schemaledger_requests(request):
                 "message": messages
             }
             return Response(errorMsg, status.HTTP_400_BAD_REQUEST)
-        
+
         # if the schema name is found, filter for the version. If no version is
         # provided, we fetch the latest version
         if not version:
             querySet = querySet.order_by('-major_version', '-minor_version',
-                                         '-revision')
+                                         '-patch')
         else:
             querySet = querySet.filter(version=version)
 
@@ -54,10 +54,12 @@ def schemaledger_requests(request):
                 "message": messages
             }
             return Response(errorMsg, status.HTTP_400_BAD_REQUEST)
-        
+
         try:
             serializer_class = SchemaLedgerSerializer(querySet.first())
             logger.info(querySet.first().metadata)
+            # only way messages gets sent is if there was an error serializing
+            # or in the response process.
             messages.append("Error fetching records please check the logs.")
         except HTTPError as http_err:
             logger.error(http_err)
@@ -68,6 +70,7 @@ def schemaledger_requests(request):
         else:
             return Response(serializer_class.data, status.HTTP_200_OK)
     else:
+        logger.error(messages)
         return Response(errorMsg, status.HTTP_400_BAD_REQUEST)
 
 
@@ -86,13 +89,13 @@ def transformationledger_requests(request):
 
     if not source_name:
         messages.append("Error; query parameter 'sourceName' is required")
-    
+
     if not source_version:
         messages.append("Error; query parameter 'sourceVersion' is required")
 
     if not target_name:
         messages.append("Error; query parameter 'targetName' is required")
-    
+
     if not target_version:
         messages.append("Error; query parameter 'targetVersion' is required")
 
@@ -103,18 +106,18 @@ def transformationledger_requests(request):
                     target_schema_name=target_name,
                     source_schema_version=source_version,
                     target_schema_version=target_version)
-        
+
         if not querySet:
-            messages.append("Error; no schema mapping found with the " 
-                            "sourceName '" + source_name + "', targetName '" + 
-                            target_name + "', sourceVersion '" + 
-                            source_version + "', targetVersion '" + 
+            messages.append("Error; no schema mapping found with the "
+                            "sourceName '" + source_name + "', targetName '" +
+                            target_name + "', sourceVersion '" +
+                            source_version + "', targetVersion '" +
                             target_version + "'.")
             errorMsg = {
                 "message": messages
             }
             return Response(errorMsg, status.HTTP_400_BAD_REQUEST)
-        
+
         try:
             serializer_class = TransformationLedgerSerializer(querySet.first())
             messages.append("Error fetching records please check the logs.")
@@ -127,4 +130,5 @@ def transformationledger_requests(request):
         else:
             return Response(serializer_class.data, status.HTTP_200_OK)
     else:
+        logger.error(messages)
         return Response(errorMsg, status.HTTP_400_BAD_REQUEST)

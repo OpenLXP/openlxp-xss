@@ -14,7 +14,7 @@ class SchemaLedgerSerializer(serializers.ModelSerializer):
         model = SchemaLedger
 
         exclude = ('schema_file', 'major_version', 'minor_version',
-                   'revision',)
+                   'patch',)
 
 
 class TransformationLedgerSerializer(serializers.ModelSerializer):
