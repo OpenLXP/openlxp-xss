@@ -23,4 +23,4 @@ class TransformationLedgerSerializer(serializers.ModelSerializer):
     class Meta:
         model = TransformationLedger
 
-        exclude = ('schema_mapping_file',)
+        exclude = ('schema_mapping_file', 'source_schema', 'target_schema',)

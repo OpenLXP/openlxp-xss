@@ -17,11 +17,11 @@ class SchemaLedger(TimeStampedModel):
     schema_file = models.FileField(upload_to='schemas/',
                                    null=True,
                                    blank=True)
-    status = models.CharField(max_length=10,
+    status = models.CharField(max_length=255,
                               choices=SCHEMA_STATUS_CHOICES)
     metadata = models.JSONField(blank=True,
                                 help_text="auto populated from uploaded file")
-    version = models.CharField(max_length=6,
+    version = models.CharField(max_length=255,
                                help_text="auto populated from other version "
                                          "fields")
     major_version = models.SmallIntegerField()
@@ -68,7 +68,7 @@ class TransformationLedger(TimeStampedModel):
                                          related_name='target_mapping')
     target_schema_name = models.CharField(max_length=255)
     target_schema_version = \
-        models.CharField(max_length=6,
+        models.CharField(max_length=255,
                          help_text="version of the target schema")
     schema_mapping_file = models.FileField(upload_to='schemas/',
                                            null=True,
@@ -76,7 +76,7 @@ class TransformationLedger(TimeStampedModel):
     schema_mapping = \
         models.JSONField(blank=True,
                          help_text="auto populated from uploaded file")
-    status = models.CharField(max_length=10,
+    status = models.CharField(max_length=255,
                               choices=SCHEMA_STATUS_CHOICES)
 
     def clean(self):
