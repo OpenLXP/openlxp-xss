@@ -1,6 +1,5 @@
-from django.test import SimpleTestCase, tag
-
 from core.models import SchemaLedger, TransformationLedger
+from django.test import SimpleTestCase, tag
 
 
 @tag('unit')
