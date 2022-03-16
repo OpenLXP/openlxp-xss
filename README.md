@@ -17,7 +17,7 @@ This component responsible for managing pertinent object/record metadata schemas
 
 # Environment Variables
 
-###To run this project, you will need to add the following environment variables to your .env file
+### To run this project, you will need to add the following environment variables to your .env file
 
 `DB_NAME` - MySql database name
 
