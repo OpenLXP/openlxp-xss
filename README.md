@@ -127,7 +127,7 @@ docker-compose --env-file .env run app sh -c "coverage run manage.py test && cov
 ```
 
 # Logs
-Check the logs of application in th docker container.
+Check the logs of application in the docker container.
 
 
 # License
