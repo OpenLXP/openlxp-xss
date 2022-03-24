@@ -1,5 +1,7 @@
-from core.models import SchemaLedger, TransformationLedger
 from django.contrib import admin
+
+from core.models import (ChildTermSet, SchemaLedger, Term, TermSet,
+                         TransformationLedger)
 
 
 # Register your models here.
@@ -14,8 +16,7 @@ class SchemaLedgerAdmin(admin.ModelAdmin):
 @admin.register(TransformationLedger)
 class TransformationLedgerAdmin(admin.ModelAdmin):
     """Admin form for the TransformationLedger model"""
-    list_display = ('id', 'source_schema_name', 'source_schema_version',
-                    'target_schema_name', 'target_schema_version', 'status',)
+    list_display = ('id', 'source_schema', 'target_schema', 'status',)
     fields = [('source_schema', 'target_schema',),
               ('schema_mapping_file', 'status',)]
 
@@ -30,3 +31,19 @@ class TransformationLedgerAdmin(admin.ModelAdmin):
         form.base_fields['target_schema'].label_from_instance = \
             lambda obj: "{} {}".format(obj.schema_name, obj.version)
         return form
+
+
+@admin.register(TermSet)
+class TermSetAdmin(admin.ModelAdmin):
+    """Admin form for the Term Set model"""
+    list_display = ('iri', 'status',)
+    fields = [('iri', 'name', 'version',),
+              ('status',)]
+
+
+@admin.register(ChildTermSet)
+class ChildTermSetAdmin(admin.ModelAdmin):
+    """Admin form for the Child Term Set model"""
+    list_display = ('iri', 'status', 'parent_term_set',)
+    fields = [('iri', 'name', 'version',),
+              ('status',), ('parent_term_set',), ]

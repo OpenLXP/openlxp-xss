@@ -1,10 +1,60 @@
 import json
 import logging
+import re
 
+from django.conf import settings
+from django.core.exceptions import ValidationError
 from django.db import models
 from model_utils.models import TimeStampedModel
 
 logger = logging.getLogger('dict_config_logger')
+
+
+def validate_version(value):
+    check = re.fullmatch('[0-9]*[.][0-9]*[.][0-9]*', value)
+    if check is None:
+        raise ValidationError(
+            ('%(value)s does not match the format 0.0.0'),
+            params={'value': value},
+        )
+
+
+class TermSet(TimeStampedModel):
+    """Model for Termsets"""
+    STATUS_CHOICES = [('published', 'published'),
+                      ('retired', 'retired')]
+    iri = models.SlugField(max_length=255, unique=True,
+                           allow_unicode=True, primary_key=True)
+    name = models.SlugField(max_length=255, allow_unicode=True)
+    version = models.CharField(max_length=255, validators=[validate_version])
+    status = models.CharField(max_length=255, choices=STATUS_CHOICES)
+    updated_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True)
+
+
+class ChildTermSet(TermSet):
+    """Model for Child Termsets"""
+    parent_term_set = models.ForeignKey(
+        TermSet, on_delete=models.CASCADE, related_name='children')
+
+
+class Term(TimeStampedModel):
+    """Model for Terms"""
+    TYPE_CHOICES = [('required', 'required'),
+                    ('optional', 'optional')]
+    name = models.SlugField(max_length=255, allow_unicode=True)
+    description = models.TextField()
+    iri = models.SlugField(max_length=255, unique=True,
+                           allow_unicode=True, primary_key=True)
+    data_type = models.CharField(max_length=255)
+    use = models.CharField(max_length=255)
+    type = models.CharField(max_length=255, choices=TYPE_CHOICES)
+    source = models.CharField(max_length=255)
+    term_set = models.ForeignKey(
+        TermSet, on_delete=models.CASCADE, related_name='terms')
+    mapping = models.ManyToManyField('self')
+    updated_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True)
 
 
 class SchemaLedger(TimeStampedModel):
@@ -17,6 +67,9 @@ class SchemaLedger(TimeStampedModel):
     schema_file = models.FileField(upload_to='schemas/',
                                    null=True,
                                    blank=True)
+    term_set = models.OneToOneField(
+        TermSet, on_delete=models.CASCADE, related_name='schema', null=True,
+        blank=True)
     status = models.CharField(max_length=255,
                               choices=SCHEMA_STATUS_CHOICES)
     metadata = models.JSONField(blank=True,
@@ -27,6 +80,8 @@ class SchemaLedger(TimeStampedModel):
     major_version = models.SmallIntegerField()
     minor_version = models.SmallIntegerField()
     patch_version = models.SmallIntegerField()
+    updated_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True)
 
     class Meta:
         # can't save 2 schemas with the same name for the same version
@@ -56,20 +111,20 @@ class TransformationLedger(TimeStampedModel):
     SCHEMA_STATUS_CHOICES = [('published', 'published'),
                              ('retired', 'retired')]
 
-    source_schema = models.OneToOneField(SchemaLedger,
-                                         on_delete=models.CASCADE,
-                                         related_name='source_mapping')
-    source_schema_name = models.CharField(max_length=255)
-    source_schema_version = \
-        models.CharField(max_length=6,
-                         help_text="version of the source schema")
-    target_schema = models.OneToOneField(SchemaLedger,
-                                         on_delete=models.CASCADE,
-                                         related_name='target_mapping')
-    target_schema_name = models.CharField(max_length=255)
-    target_schema_version = \
-        models.CharField(max_length=255,
-                         help_text="version of the target schema")
+    source_schema = models.ForeignKey(SchemaLedger,
+                                      on_delete=models.CASCADE,
+                                      related_name='source_mapping')
+    # source_schema_name = models.CharField(max_length=255)
+    # source_schema_version = \
+    #     models.CharField(max_length=6,
+    #                      help_text="version of the source schema")
+    target_schema = models.ForeignKey(SchemaLedger,
+                                      on_delete=models.CASCADE,
+                                      related_name='target_mapping')
+    # target_schema_name = models.CharField(max_length=255)
+    # target_schema_version = \
+    #     models.CharField(max_length=255,
+    #                      help_text="version of the target schema")
     schema_mapping_file = models.FileField(upload_to='schemas/',
                                            null=True,
                                            blank=True)
@@ -78,6 +133,8 @@ class TransformationLedger(TimeStampedModel):
                          help_text="auto populated from uploaded file")
     status = models.CharField(max_length=255,
                               choices=SCHEMA_STATUS_CHOICES)
+    updated_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True)
 
     def clean(self):
         # store the contents of the file in the schema_mapping field

@@ -1,7 +1,7 @@
 version: "3"
 
 services:
-  db_xss:
+  db-xss:
     image: mysql:5.7
     ports:
       - '3310:3306'
@@ -10,7 +10,7 @@ services:
 #      MYSQL_USER: 'root'
       MYSQL_PASSWORD: "${DB_PASSWORD}"
       MYSQL_ROOT_PASSWORD: "${DB_ROOT_PASSWORD}"
-      MYSQL_HOST: ''
+      # MYSQL_HOST: ''
     networks:
       - openlxp
   app:
@@ -29,13 +29,13 @@ services:
       DJANGO_SUPERUSER_USERNAME: "${DJANGO_SUPERUSER_USERNAME}"
       DJANGO_SUPERUSER_PASSWORD: "${DJANGO_SUPERUSER_PASSWORD}"
       DJANGO_SUPERUSER_EMAIL: "${DJANGO_SUPERUSER_EMAIL}"
-      REQUESTS_CA_BUNDLE: '/etc/ssl/certs/ca-certificates.pem'
-      AWS_CA_BUNDLE: '/etc/ssl/certs/ca-certificates.pem'
+      # REQUESTS_CA_BUNDLE: '/etc/ssl/certs/ca-certificates.pem'
+      # AWS_CA_BUNDLE: '/etc/ssl/certs/ca-certificates.pem'
       SECRET_KEY_VAL: "${SECRET_KEY_VAL}"
     volumes:
       - ./app:/opt/app/openlxp-xss
     depends_on:
-      - db_xss
+      - db-xss
     networks:
       - openlxp
 volumes:
