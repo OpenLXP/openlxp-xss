@@ -31,11 +31,31 @@ class TermSet(TimeStampedModel):
     updated_by = models.ForeignKey(
         settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True)
 
+    def save(self, *args, **kwargs):
+        """Generate iri for item"""
+        self.iri = self.name + '-' + self.version
+        update_fields = kwargs.get('update_fields', None)
+        if update_fields:
+            kwargs['update_fields'] = set(update_fields).union({'iri'})
+
+        super().save(*args, **kwargs)
+
 
 class ChildTermSet(TermSet):
     """Model for Child Termsets"""
     parent_term_set = models.ForeignKey(
         TermSet, on_delete=models.CASCADE, related_name='children')
+
+    def save(self, *args, **kwargs):
+        """Generate iri for item"""
+        self.iri = self.parent_term_set.iri + '-' + self.name
+        self.version = self.parent_term_set.version
+        update_fields = kwargs.get('update_fields', None)
+        if update_fields:
+            kwargs['update_fields'] = set(
+                update_fields).union({'iri', 'version'})
+
+        super(TermSet, self).save(*args, **kwargs)
 
 
 class Term(TimeStampedModel):
@@ -52,9 +72,18 @@ class Term(TimeStampedModel):
     source = models.CharField(max_length=255)
     term_set = models.ForeignKey(
         TermSet, on_delete=models.CASCADE, related_name='terms')
-    mapping = models.ManyToManyField('self')
+    mapping = models.ManyToManyField('self', blank=True)
     updated_by = models.ForeignKey(
         settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True)
+
+    def save(self, *args, **kwargs):
+        """Generate iri for item"""
+        self.iri = self.term_set.iri + '-' + self.name
+        update_fields = kwargs.get('update_fields', None)
+        if update_fields:
+            kwargs['update_fields'] = set(update_fields).union({'iri'})
+
+        super().save(*args, **kwargs)
 
 
 class SchemaLedger(TimeStampedModel):

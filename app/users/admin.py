@@ -8,3 +8,5 @@ from users.models import CustomUser
 @admin.register(CustomUser)
 class CustomUserAdmin(UserAdmin):
     """Admin form for the Custom User model"""
+    verbose_name = 'User'
+    verbose_name_plural = 'Users'

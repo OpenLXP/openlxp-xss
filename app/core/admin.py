@@ -36,14 +36,52 @@ class TransformationLedgerAdmin(admin.ModelAdmin):
 @admin.register(TermSet)
 class TermSetAdmin(admin.ModelAdmin):
     """Admin form for the Term Set model"""
-    list_display = ('iri', 'status',)
-    fields = [('iri', 'name', 'version',),
-              ('status',)]
+    list_display = ('iri', 'status', 'updated_by', 'modified',)
+    fieldsets = (
+        (None, {'fields': ('iri', 'name', 'version',)}),
+        ('Availability', {'fields': ('status',)}),
+    )
+    readonly_fields = ('iri', 'updated_by', 'modified',)
+
+    def save_model(self, request, obj, form, change):
+        """Overide save_model to pass along current user"""
+        obj.updated_by = request.user
+        return super().save_model(request, obj, form, change)
+
+    def get_queryset(self, request):
+        qs = super().get_queryset(request)
+        return qs.filter(childtermset=None)
 
 
 @admin.register(ChildTermSet)
-class ChildTermSetAdmin(admin.ModelAdmin):
+class ChildTermSetAdmin(TermSetAdmin):
     """Admin form for the Child Term Set model"""
-    list_display = ('iri', 'status', 'parent_term_set',)
-    fields = [('iri', 'name', 'version',),
-              ('status',), ('parent_term_set',), ]
+    list_display = ('iri', 'status', 'parent_term_set', 'updated_by',
+                    'modified',)
+    fieldsets = (
+        (None, {'fields': ('iri', 'name',)}),
+        ('Availability', {'fields': ('status',)}),
+        ('Parent', {'fields': ('parent_term_set',)}),
+    )
+
+    def get_queryset(self, request):
+        return super(TermSetAdmin, self).get_queryset(request)
+
+
+@admin.register(Term)
+class TermAdmin(admin.ModelAdmin):
+    """Admin form for the Term model"""
+    list_display = ('iri', 'type', 'term_set', 'updated_by', 'modified',)
+    fieldsets = (
+        (None, {'fields': ('iri', 'name', 'description',)}),
+        ('Info', {'fields': ('type', 'data_type', 'use', 'source',)}),
+        ('Connections', {'fields': ('term_set', 'mapping',)}),
+        ('Updated', {'fields': ('updated_by',), })
+    )
+    readonly_fields = ('iri', 'updated_by', 'modified',)
+    filter_horizontal = ('mapping',)
+
+    def save_model(self, request, obj, form, change):
+        """Overide save_model to pass along current user"""
+        obj.updated_by = request.user
+        return super().save_model(request, obj, form, change)
