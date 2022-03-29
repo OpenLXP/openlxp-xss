@@ -6,3 +6,12 @@ from django.db import models
 
 class CustomUser(AbstractUser):
     """Custom User model for user profiles"""
+    EMAIL_FIELD = 'username'
+    REQUIRED_FIELDS = ['first_name', 'last_name', ]
+    username = models.EmailField('email address', unique=True,
+                                 error_messages={
+                                     'unique': "A user with that username " +
+                                     "already exists.",
+                                 },
+                                 help_text='Required. 150 characters or fewer'
+                                 + '. Letters, digits and @/./+/-/_ only.',)
