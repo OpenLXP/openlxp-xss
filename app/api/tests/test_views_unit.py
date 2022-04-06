@@ -17,7 +17,7 @@ class ViewTests(TestSetUp):
         url = reverse('api:schemaledger')
         response = self.client.get(url)
         responseDict = json.loads(response.content)
-        expected_error = ["Error; query parameter 'name' is required"]
+        expected_error = ["Error; query parameter 'name' or 'iri' is required"]
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(responseDict['message'], expected_error)
@@ -25,32 +25,31 @@ class ViewTests(TestSetUp):
     def test_schemaledger_requests_no_version(self):
         """Test that making a get request to the schema api with just a schema
             name should return the latest version"""
-        url = "%s?name=test" % (reverse('api:schemaledger'))
-
+        url = "%s?name=test_name" % (reverse('api:schemaledger'))
+        self.sourceSchema.save()
         with patch('api.views.SchemaLedger.objects') as schemaObj:
             schemaObj.return_value = schemaObj
             schemaObj.all.return_value = schemaObj
             schemaObj.filter.return_value = schemaObj
             schemaObj.order_by.return_value = schemaObj
-            schemaObj.first.return_value = self.schema
+            schemaObj.first.return_value = self.sourceSchema
 
             response = self.client.get(url)
             responseDict = json.loads(response.content)
-
             self.assertEqual(response.status_code, status.HTTP_200_OK)
             self.assertEqual(responseDict["schema_name"], self.schema_name)
 
     def test_schemaledger_requests_all_params(self):
         """Test that making a get request to the schema api with just all
             query params returns a valid object"""
-        url = "%s?name=test&version=1.0.0" % (reverse('api:schemaledger'))
-
+        url = "%s?name=test_name&version=1.2.3" % (reverse('api:schemaledger'))
+        self.sourceSchema.save()
         with patch('api.views.SchemaLedger.objects') as schemaObj:
             schemaObj.return_value = schemaObj
             schemaObj.all.return_value = schemaObj
             schemaObj.filter.return_value = schemaObj
             schemaObj.order_by.return_value = schemaObj
-            schemaObj.first.return_value = self.schema
+            schemaObj.first.return_value = self.sourceSchema
 
             response = self.client.get(url)
             responseDict = json.loads(response.content)
@@ -68,7 +67,7 @@ class ViewTests(TestSetUp):
             schemaObj.all.return_value = schemaObj
             schemaObj.filter.return_value = None
             schemaObj.order_by.return_value = schemaObj
-            schemaObj.first.return_value = self.schema
+            schemaObj.first.return_value = self.sourceSchema
 
             response = self.client.get(url)
             responseDict = json.loads(response.content)
@@ -83,9 +82,10 @@ class ViewTests(TestSetUp):
         url = reverse('api:transformationledger')
         response = self.client.get(url)
         responseDict = json.loads(response.content)
-
+        expected_error = ["Error; send either 'source_name' or 'source_iri' "
+                          "values to query from"]
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEqual(len(responseDict['message']), 4)
+        self.assertEqual(responseDict['message'], expected_error)
 
     def test_transformationledger_requests_no_mapping_found(self):
         """Test that making a get request to the mappings api with all params
@@ -105,9 +105,12 @@ class ViewTests(TestSetUp):
     def test_transformationledger_requests_all_params(self):
         """Test that making a get request to the mappings api with all params
             is returns transformationledger when it exists"""
-        url = ("%s?sourceName=test&sourceVersion=1.0.2&targetName=test2&" +
-               "targetVersion=1.0.0") % (reverse('api:transformationledger'))
-
+        url = ("%s?sourceName=test_name&sourceVersion=1.2.3&"
+               "targetName=test_name_1&" + "targetVersion=1.2.4") % (
+                  reverse('api:transformationledger'))
+        self.sourceSchema.save()
+        self.targetSchema.save()
+        self.mapping.save()
         with patch('api.views.TransformationLedger.objects') as mappingObj:
             mappingObj.return_value = mappingObj
             mappingObj.all.return_value = mappingObj
@@ -118,5 +121,5 @@ class ViewTests(TestSetUp):
             responseDict = json.loads(response.content)
 
             self.assertEqual(response.status_code, status.HTTP_200_OK)
-            self.assertEqual(responseDict["source_schema_name"],
-                             self.source_schema_name)
+            self.assertEqual(responseDict["schema_mapping"],
+                             self.schema_mapping)

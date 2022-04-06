@@ -8,8 +8,8 @@ from core.models import (ChildTermSet, SchemaLedger, Term, TermSet,
 @admin.register(SchemaLedger)
 class SchemaLedgerAdmin(admin.ModelAdmin):
     """Admin form for the SchemaLedger model"""
-    list_display = ('id', 'schema_name', 'schema_iri', 'status', 'version',)
-    fields = [('schema_name', 'schema_iri', 'schema_file', 'status',),
+    list_display = ('schema_name', 'status', 'version',)
+    fields = [('schema_name', 'schema_file', 'status',),
               ('major_version', 'minor_version', 'patch_version',)]
 
 

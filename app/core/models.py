@@ -7,6 +7,8 @@ from django.core.exceptions import ValidationError
 from django.db import models
 from model_utils.models import TimeStampedModel
 
+from django.db.models.signals import post_save
+
 logger = logging.getLogger('dict_config_logger')
 
 
@@ -14,7 +16,7 @@ def validate_version(value):
     check = re.fullmatch('[0-9]*[.][0-9]*[.][0-9]*', value)
     if check is None:
         raise ValidationError(
-            ('%(value)s does not match the format 0.0.0'),
+            '%(value)s does not match the format 0.0.0',
             params={'value': value},
         )
 
@@ -92,7 +94,8 @@ class SchemaLedger(TimeStampedModel):
                              ('retired', 'retired')]
 
     schema_name = models.CharField(max_length=255)
-    schema_iri = models.CharField(max_length=255)
+    schema_iri = models.SlugField(max_length=255, unique=True,
+                                  allow_unicode=True)
     schema_file = models.FileField(upload_to='schemas/',
                                    null=True,
                                    blank=True)
@@ -106,9 +109,9 @@ class SchemaLedger(TimeStampedModel):
     version = models.CharField(max_length=255,
                                help_text="auto populated from other version "
                                          "fields")
-    major_version = models.SmallIntegerField()
-    minor_version = models.SmallIntegerField()
-    patch_version = models.SmallIntegerField()
+    major_version = models.SmallIntegerField(default=0)
+    minor_version = models.SmallIntegerField(default=0)
+    patch_version = models.SmallIntegerField(default=0)
     updated_by = models.ForeignKey(
         settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True)
 
@@ -119,20 +122,51 @@ class SchemaLedger(TimeStampedModel):
                                     name='unique_schema')
         ]
 
+    def __str__(self):
+        return str(self.term_set)
+
     def clean(self):
         # store the contents of the file in the metadata field
         if self.schema_file:
             json_file = self.schema_file
-            json_obj = json.load(json_file)  # deserialises it
+            json_obj = json.load(json_file)  # deserializes it
 
             self.metadata = json_obj
             json_file.close()
             self.schema_file = None
 
         # combine the versions
-        version = str(self.major_version) + '.' + str(self.minor_version) \
+        version = \
+            str(self.major_version) + '.' + str(self.minor_version) \
             + '.' + str(self.patch_version)
         self.version = version
+
+    def save(self, *args, **kwargs):
+        """Generate iri for item"""
+        self.schema_iri = self.schema_name + '-' + self.version
+        update_fields = kwargs.get('update_fields', None)
+        if update_fields:
+            kwargs['update_fields'] = set(update_fields).union({'iri'})
+
+        super().save(*args, **kwargs)
+
+
+def create_TermSet(sender, instance, created, **kwargs):
+    if created:
+        TermSet.objects.create(term_set=instance)
+        logger.info("TermSet created")
+
+
+# post_save.connect(create_TermSet, sender=SchemaLedger)
+
+
+def update_TermSet(sender, instance, created, **kwargs):
+    if not created:
+        instance.TermSet.save()
+        logger.info("TermSet updated")
+
+
+# post_save.connect(update_TermSet, sender=SchemaLedger)
 
 
 class TransformationLedger(TimeStampedModel):
