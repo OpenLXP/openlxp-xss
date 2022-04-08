@@ -5,9 +5,9 @@ import re
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.db import models
+
 from model_utils.models import TimeStampedModel
 
-from django.db.models.signals import post_save
 
 logger = logging.getLogger('dict_config_logger')
 
@@ -122,9 +122,6 @@ class SchemaLedger(TimeStampedModel):
                                     name='unique_schema')
         ]
 
-    def __str__(self):
-        return str(self.term_set)
-
     def clean(self):
         # store the contents of the file in the metadata field
         if self.schema_file:
@@ -141,6 +138,9 @@ class SchemaLedger(TimeStampedModel):
             + '.' + str(self.patch_version)
         self.version = version
 
+    def __str__(self):
+        return str(self.schema_iri)
+
     def save(self, *args, **kwargs):
         """Generate iri for item"""
         self.schema_iri = self.schema_name + '-' + self.version
@@ -148,25 +148,12 @@ class SchemaLedger(TimeStampedModel):
         if update_fields:
             kwargs['update_fields'] = set(update_fields).union({'iri'})
 
-        super().save(*args, **kwargs)
-
-
-def create_TermSet(sender, instance, created, **kwargs):
-    if created:
-        TermSet.objects.create(term_set=instance)
-        logger.info("TermSet created")
-
-
-# post_save.connect(create_TermSet, sender=SchemaLedger)
-
-
-def update_TermSet(sender, instance, created, **kwargs):
-    if not created:
-        instance.TermSet.save()
-        logger.info("TermSet updated")
-
-
-# post_save.connect(update_TermSet, sender=SchemaLedger)
+        # super().save(*args, **kwargs)
+        if self.pk is None:
+            super(SchemaLedger, self).save(*args, **kwargs)
+        else:
+            super(SchemaLedger, self).save(update_fields=['status'],
+                                           *args, **kwargs)
 
 
 class TransformationLedger(TimeStampedModel):

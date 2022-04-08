@@ -12,6 +12,13 @@ class SchemaLedgerAdmin(admin.ModelAdmin):
     fields = [('schema_name', 'schema_file', 'status',),
               ('major_version', 'minor_version', 'patch_version',)]
 
+    def get_readonly_fields(self, request, obj=None):
+        if obj:  # editing an existing object
+            return self.readonly_fields + ('schema_name', 'schema_file',
+                                           'major_version', 'minor_version',
+                                           'patch_version')
+        return self.readonly_fields
+
 
 @admin.register(TransformationLedger)
 class TransformationLedgerAdmin(admin.ModelAdmin):
