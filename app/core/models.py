@@ -5,9 +5,7 @@ import re
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.db import models
-
 from model_utils.models import TimeStampedModel
-
 
 logger = logging.getLogger('dict_config_logger')
 
@@ -35,7 +33,7 @@ class TermSet(TimeStampedModel):
 
     def save(self, *args, **kwargs):
         """Generate iri for item"""
-        self.iri = self.name + '-' + self.version
+        self.iri = 'xss:' + self.version + '@' + self.name
         update_fields = kwargs.get('update_fields', None)
         if update_fields:
             kwargs['update_fields'] = set(update_fields).union({'iri'})
@@ -50,7 +48,7 @@ class ChildTermSet(TermSet):
 
     def save(self, *args, **kwargs):
         """Generate iri for item"""
-        self.iri = self.parent_term_set.iri + '-' + self.name
+        self.iri = self.parent_term_set.iri + '/' + self.name
         self.version = self.parent_term_set.version
         update_fields = kwargs.get('update_fields', None)
         if update_fields:
@@ -80,7 +78,7 @@ class Term(TimeStampedModel):
 
     def save(self, *args, **kwargs):
         """Generate iri for item"""
-        self.iri = self.term_set.iri + '-' + self.name
+        self.iri = self.term_set.iri + '?' + self.name
         update_fields = kwargs.get('update_fields', None)
         if update_fields:
             kwargs['update_fields'] = set(update_fields).union({'iri'})
@@ -143,7 +141,7 @@ class SchemaLedger(TimeStampedModel):
 
     def save(self, *args, **kwargs):
         """Generate iri for item"""
-        self.schema_iri = self.schema_name + '-' + self.version
+        self.schema_iri = 'xss:' + self.version + '@' + self.schema_name
         update_fields = kwargs.get('update_fields', None)
         if update_fields:
             kwargs['update_fields'] = set(update_fields).union({'iri'})
@@ -190,7 +188,7 @@ class TransformationLedger(TimeStampedModel):
         # store the contents of the file in the schema_mapping field
         if self.schema_mapping_file:
             json_file = self.schema_mapping_file
-            json_obj = json.load(json_file)  # deserialises it
+            json_obj = json.load(json_file)  # deserializes it
 
             self.schema_mapping = json_obj
             json_file.close()
