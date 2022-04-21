@@ -36,7 +36,7 @@ def save_metadata(metadata, schema_iri):
                 # If Json Field value is a string
                 else:
                     if isinstance(metadata[element][sub_element], str):
-                        term_object(metadata, schema_iri)
+                        term_object(metadata[element], element, schema_iri)
                 break
 
 
@@ -51,7 +51,7 @@ def termset_object(termset_obj, parent_iri):
                     termset_object(termset_obj[element], new_parent_iri)
                 # If Json Field value is a string
                 else:
-                    if isinstance(termset_obj[element][sub_element],str):
+                    if isinstance(termset_obj[element][sub_element], str):
                         term_object(termset_obj[element], element, parent_iri)
                 break
 
@@ -60,4 +60,4 @@ def term_object(term_obj, term_name, parent_iri):
     """function to update flattened object to dict variable"""
     # new_parent_iri=create a term(parent_iri)
 
-    term = create_terms(term_obj, term_name, parent_iri)
+    create_terms(term_obj, term_name, parent_iri)

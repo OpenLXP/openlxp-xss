@@ -1,13 +1,13 @@
 import logging
 
-from rest_framework.generics import GenericAPIView
-
-from api.serializers import (SchemaLedgerSerializer,
-                             TransformationLedgerSerializer)
 from core.models import SchemaLedger, TransformationLedger
 from requests.exceptions import HTTPError
 from rest_framework import status
+from rest_framework.generics import GenericAPIView
 from rest_framework.response import Response
+
+from api.serializers import (SchemaLedgerSerializer,
+                             TransformationLedgerSerializer)
 
 logger = logging.getLogger('dict_config_logger')
 
@@ -118,15 +118,15 @@ class TransformationLedgerDataView(GenericAPIView):
             "message": messages
         }
 
-        if bool(source_name) and bool(source_iri) is None:
+        if source_name == source_iri and source_name is None:
             messages.append("Error; query parameter 'sourceName' or "
-                            "'source_iri' is required")
+                            "'sourceIRI' is required")
 
         # if not source_version:
         #     messages.append(
         #         "Error; query parameter 'sourceVersion' is required")
 
-        if bool(target_name) and bool(target_iri) is None:
+        if target_name == target_iri and target_name is None:
             messages.append("Error; query parameter 'targetName' or "
                             "'targetIRI' is required")
 
@@ -185,19 +185,12 @@ class TransformationLedgerDataView(GenericAPIView):
                         "message": messages
                     }
                     return Response(errorMsg, status.HTTP_400_BAD_REQUEST)
-            else:
-                messages.append("Error; send either 'source_name' "
-                                "or 'source_iri' values to query from")
-                errorMsg = {
-                    "message": messages
-                }
-                return Response(errorMsg, status.HTTP_400_BAD_REQUEST)
 
             if target_name:
                 # look for a model with the provided name
                 queryset = \
-                    queryset.filter(target_schema__schema_name__contains=
-                                    target_name)
+                    queryset.filter(
+                        target_schema__schema_name__contains=target_name)
 
                 if not queryset:
                     messages. \
@@ -215,8 +208,7 @@ class TransformationLedgerDataView(GenericAPIView):
                         order_by('-target_schema__version')
                 else:
                     queryset = queryset.filter(
-                        target_schema__version__contains=
-                        target_version)
+                        target_schema__version__contains=target_version)
 
                 if not queryset:
                     messages.append(
@@ -240,13 +232,6 @@ class TransformationLedgerDataView(GenericAPIView):
                         "message": messages
                     }
                     return Response(errorMsg, status.HTTP_400_BAD_REQUEST)
-            else:
-                messages.append("Error; send either 'target_name' "
-                                "or 'target_iri' values to query from")
-                errorMsg = {
-                    "message": messages
-                }
-                return Response(errorMsg, status.HTTP_400_BAD_REQUEST)
 
             try:
                 serializer_class = TransformationLedgerSerializer(
