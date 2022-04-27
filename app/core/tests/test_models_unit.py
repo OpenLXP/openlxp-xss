@@ -109,12 +109,13 @@ class ModelTests(TestSetUp):
         t_type = Term.TYPE_CHOICES[0][0]
         t_source = "source"
         t_ts = self.ts
+        t_status = "published"
 
         expected_iri = "xss:" + t_ts.version + "@" + t_ts.name + "?" + t_name
 
         term = Term(name=t_name, description=t_description,
                     data_type=t_data_type, use=t_use, type=t_type,
-                    source=t_source, term_set=t_ts)
+                    source=t_source, term_set=t_ts, status=t_status)
 
         term.save()
 
@@ -125,6 +126,7 @@ class ModelTests(TestSetUp):
         self.assertEquals(term.type, t_type)
         self.assertEquals(term.source, t_source)
         self.assertEquals(term.term_set, t_ts)
+        self.assertEquals(term.status, t_status)
 
     def test_validate_version_pass(self):
         """Test that validate version passes correct formats"""

@@ -10,8 +10,14 @@ class TestSetUp(TestCase):
 
         self.schema_name = 'test_name'
         self.schema_iri = 'test_iri'
-        self.metadata = {
-            'test': 'test'
+        self.metadata = {'test': {
+            'test1': {"use": "Required",
+                      "type": "int"
+                      },
+            'test2': {"use": "Optional",
+                      "type": "char"
+                      }
+        }
         }
         self.status = 'published'
         self.version = '1.0.0'
@@ -27,6 +33,11 @@ class TestSetUp(TestCase):
                                    major_version=self.major_version,
                                    minor_version=self.minor_version,
                                    patch_version=self.patch_version)
+
+        self.termset = TermSet(name=self.schema_name,
+                               status=self.status,
+                               version=self.version,
+                               )
         self.schema.save()
 
         self.ts_name = "test_name"

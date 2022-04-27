@@ -122,25 +122,9 @@ class TransformationLedgerDataView(GenericAPIView):
             messages.append("Error; query parameter 'sourceName' or "
                             "'sourceIRI' is required")
 
-        # if not source_version:
-        #     messages.append(
-        #         "Error; query parameter 'sourceVersion' is required")
-
         if target_name == target_iri and target_name is None:
             messages.append("Error; query parameter 'targetName' or "
                             "'targetIRI' is required")
-
-        # if not target_version:
-        #     messages.append(
-        #         "Error; query parameter 'targetVersion' is required")
-        #
-        # if source_name and source_iri:
-        #     messages.append("Error; send either 'source_name' "
-        #                     "or 'source_iri' values to query from")
-        #
-        # if target_name and target_iri:
-        #     messages.append("Error; send either 'target_name' "
-        #                     "or 'target_iri' values to query from")
 
         if len(messages) == 0:
             # look for a model with the provided name

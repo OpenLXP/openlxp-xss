@@ -2,7 +2,8 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 import logging
 
-from core.management.utils.signals_utils import save_metadata
+from core.management.utils.signals_utils import update_status, \
+    termset_object
 from core.models import SchemaLedger, TermSet
 
 logger = logging.getLogger('dict_config_logger')
@@ -17,7 +18,7 @@ def create_TermSet(sender, instance, created, **kwargs):
                                          version=schemaledger.version,
                                          status=schemaledger.status)
         termset.save()
-        save_metadata(schemaledger.metadata, termset)
+        termset_object(schemaledger.metadata, termset, schemaledger.status)
 
         logger.info("TermSet created")
 
@@ -29,4 +30,6 @@ def update_TermSet(sender, instance, created, **kwargs):
         termset = TermSet.objects.get(iri=instance)
         termset.status = schemaledger.status
         termset.save()
+
+        update_status(termset, termset.status)
         logger.info("TermSet updated")

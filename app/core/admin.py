@@ -78,9 +78,10 @@ class ChildTermSetAdmin(TermSetAdmin):
 @admin.register(Term)
 class TermAdmin(admin.ModelAdmin):
     """Admin form for the Term model"""
-    list_display = ('iri', 'type', 'term_set', 'updated_by', 'modified',)
+    list_display = ('iri', 'status', 'term_set', 'updated_by',
+                    'modified', )
     fieldsets = (
-        (None, {'fields': ('iri', 'name', 'description',)}),
+        (None, {'fields': ('iri', 'name', 'description', 'status',)}),
         ('Info', {'fields': ('type', 'data_type', 'use', 'source',)}),
         ('Connections', {'fields': ('term_set', 'mapping',)}),
         ('Updated', {'fields': ('updated_by',), })

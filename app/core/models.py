@@ -1,5 +1,6 @@
 import json
 import logging
+import os
 import re
 
 from django.conf import settings
@@ -60,6 +61,8 @@ class ChildTermSet(TermSet):
 
 class Term(TimeStampedModel):
     """Model for Terms"""
+    STATUS_CHOICES = [('published', 'published'),
+                      ('retired', 'retired')]
     TYPE_CHOICES = [('required', 'required'),
                     ('optional', 'optional')]
     name = models.SlugField(max_length=255, allow_unicode=True)
@@ -75,6 +78,7 @@ class Term(TimeStampedModel):
     mapping = models.ManyToManyField('self', blank=True)
     updated_by = models.ForeignKey(
         settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True)
+    status = models.CharField(max_length=255, choices=STATUS_CHOICES)
 
     def save(self, *args, **kwargs):
         """Generate iri for item"""
@@ -120,6 +124,9 @@ class SchemaLedger(TimeStampedModel):
                                     name='unique_schema')
         ]
 
+    def filename(self):
+        return os.path.basename(self.schema_file.name)
+
     def clean(self):
         # store the contents of the file in the metadata field
         if self.schema_file:
@@ -162,17 +169,9 @@ class TransformationLedger(TimeStampedModel):
     source_schema = models.ForeignKey(SchemaLedger,
                                       on_delete=models.CASCADE,
                                       related_name='source_mapping')
-    # source_schema_name = models.CharField(max_length=255)
-    # source_schema_version = \
-    #     models.CharField(max_length=6,
-    #                      help_text="version of the source schema")
     target_schema = models.ForeignKey(SchemaLedger,
                                       on_delete=models.CASCADE,
                                       related_name='target_mapping')
-    # target_schema_name = models.CharField(max_length=255)
-    # target_schema_version = \
-    #     models.CharField(max_length=255,
-    #                      help_text="version of the target schema")
     schema_mapping_file = models.FileField(upload_to='schemas/',
                                            null=True,
                                            blank=True)
