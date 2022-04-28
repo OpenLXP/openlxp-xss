@@ -20,7 +20,7 @@ class RegisterView(generics.GenericAPIView):
         POST request that takes in: email, password, first_name, and last_name
         """
         # grab the data before its serialized
-        data = json.loads(request.body)
+        data = request.data
         username = data.get('username')
         password = data.get('password')
 
@@ -55,7 +55,7 @@ class LoginView(generics.GenericAPIView):
         session id cookie on success
         """
         # read login info
-        data = json.loads(request.body)
+        data = request.data
         username = data.get("username")
         password = data.get("password")
 
