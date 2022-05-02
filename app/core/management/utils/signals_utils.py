@@ -36,10 +36,9 @@ def termset_object(metadata, schema_iri, status):
                         element, schema_iri, status)
                     termset_object(metadata[element], parent_iri, status)
                 # If Json Field value is a string
-                else:
-                    if isinstance(metadata[element][sub_element], str):
-                        term_object(
-                            metadata[element], element, schema_iri, status)
+                elif isinstance(metadata[element][sub_element], str):
+                    term_object(
+                        metadata[element], element, schema_iri, status)
                 break
 
 
