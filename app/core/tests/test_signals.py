@@ -2,8 +2,8 @@ from unittest.mock import patch
 
 from django.test import tag
 
+from ..models import SchemaLedger, TermSet
 from .test_setup import TestSetUp
-from ..models import TermSet, SchemaLedger
 
 
 @tag('unit')
@@ -26,7 +26,7 @@ class SignalTests(TestSetUp):
         in termsets and terms"""
 
         with patch('core.signals.update_status'), \
-                patch('core.signals.create_TermSet'):
+                patch('core.signals.create_term_set'):
 
             self.schema.save()
 
