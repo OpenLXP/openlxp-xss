@@ -1,6 +1,5 @@
 import logging
 
-from core.models import SchemaLedger, TransformationLedger
 from django.core.exceptions import ObjectDoesNotExist
 from requests.exceptions import HTTPError
 from rest_framework import status
@@ -9,8 +8,20 @@ from rest_framework.response import Response
 
 from api.serializers import (SchemaLedgerSerializer,
                              TransformationLedgerSerializer)
+from core.models import SchemaLedger, TransformationLedger
 
 logger = logging.getLogger('dict_config_logger')
+
+
+def check_status(messages, queryset):
+    queryset = queryset.filter(status='published')
+    if not queryset:
+        message = "Error fetching record, no " \
+                  "published record with required parameters"
+        messages.append(message)
+        logger.error(message)
+        raise ObjectDoesNotExist()
+    return queryset
 
 
 class SchemaLedgerDataView(GenericAPIView):
@@ -80,12 +91,18 @@ class SchemaLedgerDataView(GenericAPIView):
             logger.error(messages)
             return Response(errorMsg, status.HTTP_400_BAD_REQUEST)
         try:
+            queryset = check_status(messages, queryset)
             serializer_class = SchemaLedgerSerializer(queryset.first())
             logger.info(queryset.first().metadata)
             # only way messages gets sent is if there was
             # an error serializing or in the response process.
             messages.append(
                 "Error fetching records please check the logs.")
+        except ObjectDoesNotExist:
+            errorMsg = {
+                "message": messages
+            }
+            return Response(errorMsg, status.HTTP_400_BAD_REQUEST)
         except HTTPError as http_err:
             logger.error(http_err)
             return Response(errorMsg,
@@ -132,6 +149,7 @@ class TransformationLedgerDataView(GenericAPIView):
                 queryset = self._filter_by_target(
                     target_name, target_version, target_iri, messages,
                     queryset)
+                queryset = check_status(messages, queryset)
 
                 serializer_class = TransformationLedgerSerializer(
                     queryset.first())

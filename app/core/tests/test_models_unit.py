@@ -1,7 +1,8 @@
-from core.models import (ChildTermSet, SchemaLedger, Term, TermSet,
-                         TransformationLedger, validate_version)
 from django.core.exceptions import ValidationError
 from django.test import tag
+
+from core.models import (ChildTermSet, SchemaLedger, Term, TermSet,
+                         TransformationLedger, validate_version)
 
 from .test_setup import TestSetUp
 
@@ -103,10 +104,9 @@ class ModelTests(TestSetUp):
     def test_term(self):
         """Test that creating a Term is successful"""
         t_name = "test_name"
-        t_description = "test descripting"
+        t_description = "test description"
         t_data_type = "string"
-        t_use = "test use"
-        t_type = Term.TYPE_CHOICES[0][0]
+        t_use = Term.USE_CHOICES[0][0]
         t_source = "source"
         t_ts = self.ts
         t_status = "published"
@@ -114,7 +114,7 @@ class ModelTests(TestSetUp):
         expected_iri = "xss:" + t_ts.version + "@" + t_ts.name + "?" + t_name
 
         term = Term(name=t_name, description=t_description,
-                    data_type=t_data_type, use=t_use, type=t_type,
+                    data_type=t_data_type, use=t_use,
                     source=t_source, term_set=t_ts, status=t_status)
 
         term.save()
@@ -123,7 +123,6 @@ class ModelTests(TestSetUp):
         self.assertEquals(term.name, t_name)
         self.assertEquals(term.data_type, t_data_type)
         self.assertEquals(term.use, t_use)
-        self.assertEquals(term.type, t_type)
         self.assertEquals(term.source, t_source)
         self.assertEquals(term.term_set, t_ts)
         self.assertEquals(term.status, t_status)

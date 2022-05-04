@@ -1,12 +1,13 @@
 from unittest.mock import patch
 
-from ddt import data, unpack, ddt
+from ddt import data, ddt, unpack
 from django.test import tag
 
+from ..management.utils.signals_utils import (create_child_termset,
+                                              create_terms, term_object,
+                                              termset_object, update_status)
+from ..models import ChildTermSet, TermSet
 from .test_setup import TestSetUp
-from ..management.utils.signals_utils import create_child_termset, \
-    create_terms, term_object, termset_object, update_status
-from ..models import TermSet, ChildTermSet
 
 
 @tag('unit')
@@ -18,7 +19,8 @@ class UtilsTests(TestSetUp):
         self.termset.save()
         termset_name = 'test1'
         termset = TermSet.objects.get(name=self.schema_name)
-        return_val = create_child_termset(termset_name, termset, self.status)
+        return_val = create_child_termset(termset_name, termset,
+                                          self.status, self.user)
 
         self.assertEqual(return_val.parent_term_set, termset)
         self.assertEqual(return_val.name, termset_name)
@@ -29,7 +31,7 @@ class UtilsTests(TestSetUp):
         self.termset.save()
         termset = TermSet.objects.get(name=self.schema_name)
         return_val = create_terms(self.metadata["test"]["test1"], "test1",
-                                  termset, self.status)
+                                  termset, self.status, self.user)
 
         self.assertEqual(return_val.term_set, termset)
         self.assertEqual(return_val.name, "test1")
@@ -46,12 +48,12 @@ class UtilsTests(TestSetUp):
                       'termset_object') as mock_termset_object, \
                 patch('core.management.utils.'
                       'signals_utils.term_object') as mock_term_object:
-            termset_object(data1, self.schema_iri, self.status)
+            termset_object(data1, self.schema_iri, self.status, self.user)
 
             self.assertEqual(mock_create_child_termset.call_count, 1)
             self.assertEqual(mock_termset_object.call_count, 1)
 
-            termset_object(data2, self.schema_iri, self.status)
+            termset_object(data2, self.schema_iri, self.status, self.user)
 
             self.assertEqual(mock_term_object.call_count, 1)
 
@@ -59,14 +61,15 @@ class UtilsTests(TestSetUp):
         """Test function to update flattened object to dict variable"""
         with patch('core.management.utils.signals_utils.'
                    'create_terms') as mock_create_terms:
-            term_object('term_obj', 'term_name', 'parent_iri', 'status')
+            term_object('term_obj', 'term_name', 'parent_iri',
+                        'status', self.user)
             self.assertEqual(mock_create_terms.call_count, 1)
 
     def test_update_status(self):
         """Test function to update the status of children terms/termsets"""
         self.schema.save()
         termset = TermSet.objects.get(name='test_name')
-        update_status(termset, "Retired")
+        update_status(termset, "Retired", self.user)
         child_termset = ChildTermSet.objects.get(parent_term_set=termset)
 
         self.assertEqual(child_termset.status, "Retired")

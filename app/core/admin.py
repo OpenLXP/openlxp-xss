@@ -19,6 +19,10 @@ class SchemaLedgerAdmin(admin.ModelAdmin):
                                            'patch_version')
         return self.readonly_fields
 
+    def save_model(self, request, obj, form, change):
+        obj.updated_by = request.user
+        super().save_model(request, obj, form, change)
+
 
 @admin.register(TransformationLedger)
 class TransformationLedgerAdmin(admin.ModelAdmin):
@@ -82,7 +86,7 @@ class TermAdmin(admin.ModelAdmin):
                     'modified', )
     fieldsets = (
         (None, {'fields': ('iri', 'name', 'description', 'status',)}),
-        ('Info', {'fields': ('type', 'data_type', 'use', 'source',)}),
+        ('Info', {'fields': ('data_type', 'use', 'source',)}),
         ('Connections', {'fields': ('term_set', 'mapping',)}),
         ('Updated', {'fields': ('updated_by',), })
     )

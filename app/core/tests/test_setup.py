@@ -1,5 +1,7 @@
-from core.models import SchemaLedger, TermSet
 from django.test import TestCase
+
+from core.models import SchemaLedger, TermSet
+from users.models import CustomUser
 
 
 class TestSetUp(TestCase):
@@ -24,6 +26,9 @@ class TestSetUp(TestCase):
         self.major_version = 1
         self.minor_version = 0
         self.patch_version = 0
+
+        CustomUser(username="test@test.com").save()
+        self.user = CustomUser.objects.get(username="test@test.com")
 
         self.schema = SchemaLedger(schema_name=self.schema_name,
                                    schema_iri=self.schema_iri,

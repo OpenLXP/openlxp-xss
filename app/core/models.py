@@ -63,15 +63,16 @@ class Term(TimeStampedModel):
     """Model for Terms"""
     STATUS_CHOICES = [('published', 'published'),
                       ('retired', 'retired')]
-    TYPE_CHOICES = [('required', 'required'),
-                    ('optional', 'optional')]
+    USE_CHOICES = [('Required', 'Required'),
+                   ('Optional', 'Optional'),
+                   ('Recommended', 'Recommended'),
+                   ]
     name = models.SlugField(max_length=255, allow_unicode=True)
     description = models.TextField()
     iri = models.SlugField(max_length=255, unique=True,
                            allow_unicode=True, primary_key=True)
     data_type = models.CharField(max_length=255)
-    use = models.CharField(max_length=255)
-    type = models.CharField(max_length=255, choices=TYPE_CHOICES)
+    use = models.CharField(max_length=255, choices=USE_CHOICES)
     source = models.CharField(max_length=255)
     term_set = models.ForeignKey(
         TermSet, on_delete=models.CASCADE, related_name='terms')
@@ -157,7 +158,8 @@ class SchemaLedger(TimeStampedModel):
         if self.pk is None:
             super(SchemaLedger, self).save(*args, **kwargs)
         else:
-            super(SchemaLedger, self).save(update_fields=['status'],
+            super(SchemaLedger, self).save(update_fields=['status',
+                                                          'updated_by'],
                                            *args, **kwargs)
 
 

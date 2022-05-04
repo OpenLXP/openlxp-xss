@@ -1,4 +1,5 @@
 from django.test import tag
+
 from users.models import CustomUser
 
 from .test_setup import TestSetUp
