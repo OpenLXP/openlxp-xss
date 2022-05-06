@@ -9,7 +9,7 @@ from .test_setup import TestSetUp
 @tag('unit')
 class SignalTests(TestSetUp):
 
-    def test_create_TermSet(self):
+    def test_create_term_set(self):
         """Function to check create postsave of schema ledger
         in termsets and terms"""
 
@@ -21,7 +21,7 @@ class SignalTests(TestSetUp):
             self.assertEqual(termset.version, self.version)
             self.assertEqual(termset.status, self.status)
 
-    def test_update_TermSet(self):
+    def test_update_term_set(self):
         """Function to check update postsave of schema ledger
         in termsets and terms"""
 
