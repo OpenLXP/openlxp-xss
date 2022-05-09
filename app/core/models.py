@@ -68,12 +68,12 @@ class Term(TimeStampedModel):
                    ('Recommended', 'Recommended'),
                    ]
     name = models.SlugField(max_length=255, allow_unicode=True)
-    description = models.TextField()
+    description = models.TextField(null=True, blank=True)
     iri = models.SlugField(max_length=255, unique=True,
                            allow_unicode=True, primary_key=True)
-    data_type = models.CharField(max_length=255)
+    data_type = models.CharField(max_length=255, null=True, blank=True)
     use = models.CharField(max_length=255, choices=USE_CHOICES)
-    source = models.CharField(max_length=255)
+    source = models.CharField(max_length=255, null=True, blank=True)
     term_set = models.ForeignKey(
         TermSet, on_delete=models.CASCADE, related_name='terms')
     mapping = models.ManyToManyField('self', blank=True)
