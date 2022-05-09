@@ -97,3 +97,10 @@ class TermAdmin(admin.ModelAdmin):
         """Overide save_model to pass along current user"""
         obj.updated_by = request.user
         return super().save_model(request, obj, form, change)
+
+    def get_form(self, request, obj=None, **kwargs):
+        form = super(TermAdmin, self).get_form(request, obj, **kwargs)
+        if obj is not None:
+            form.base_fields['mapping'].queryset = Term.objects.exclude(
+                iri__startswith=obj.root_term_set())
+        return form

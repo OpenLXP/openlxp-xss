@@ -81,6 +81,13 @@ class Term(TimeStampedModel):
         settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True)
     status = models.CharField(max_length=255, choices=STATUS_CHOICES)
 
+    def root_term_set(self):
+        """Get iri of the root Term Set for the current Term"""
+        if "/" in self.iri:
+            return self.iri[:self.iri.index('/')]
+        else:
+            return self.iri[:self.iri.index('?')]
+
     def save(self, *args, **kwargs):
         """Generate iri for item"""
         self.iri = self.term_set.iri + '?' + self.name
