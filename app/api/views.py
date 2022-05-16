@@ -6,9 +6,9 @@ from rest_framework import status
 from rest_framework.generics import GenericAPIView
 from rest_framework.response import Response
 
-from api.serializers import (SchemaLedgerSerializer,
-                             TransformationLedgerSerializer)
-from core.models import SchemaLedger, TransformationLedger
+from api.serializers import TermSetSerializer, TransformationLedgerSerializer
+from core.management.utils.xss_helper import sort_version
+from core.models import TermSet, TransformationLedger
 
 logger = logging.getLogger('dict_config_logger')
 
@@ -27,7 +27,7 @@ def check_status(messages, queryset):
 class SchemaLedgerDataView(GenericAPIView):
     """Handles HTTP requests to the Schema Ledger"""
 
-    queryset = SchemaLedger.objects.all()
+    queryset = TermSet.objects.all().filter(status='published')
 
     def get(self, request):
         """This method defines the API's to retrieve data
@@ -47,7 +47,7 @@ class SchemaLedgerDataView(GenericAPIView):
 
         if name:
             # look for a model with the provided name
-            queryset = queryset.filter(schema_name=name)
+            queryset = queryset.filter(name=name)
 
             if not queryset:
                 messages.append("Error; no schema found with the name '" +
@@ -60,9 +60,8 @@ class SchemaLedgerDataView(GenericAPIView):
             # if the schema name is found, filter for the version.
             # If no version is provided, we fetch the latest version
             if not version:
-                queryset = queryset.order_by('-major_version',
-                                             '-minor_version',
-                                             '-patch_version')
+                queryset = [ts for ts in queryset]
+                queryset = sort_version(queryset, reverse_order=True)
             else:
                 queryset = queryset.filter(version=version)
 
@@ -75,8 +74,7 @@ class SchemaLedgerDataView(GenericAPIView):
                 return Response(errorMsg, status.HTTP_400_BAD_REQUEST)
         elif iri:
             # look for a model with the provided name
-            queryset = SchemaLedger.objects.all() \
-                .filter(schema_iri=iri)
+            queryset = queryset.filter(iri=iri)
 
             if not queryset:
                 messages.append("Error; no schema found with the iri '" +
@@ -91,13 +89,14 @@ class SchemaLedgerDataView(GenericAPIView):
             logger.error(messages)
             return Response(errorMsg, status.HTTP_400_BAD_REQUEST)
         try:
-            queryset = check_status(messages, queryset)
-            serializer_class = SchemaLedgerSerializer(queryset.first())
-            logger.info(queryset.first().metadata)
+            serializer_class = TermSetSerializer(queryset[0])
+            logger.info(queryset[0])
             # only way messages gets sent is if there was
             # an error serializing or in the response process.
             messages.append(
                 "Error fetching records please check the logs.")
+            return Response(serializer_class.data['export'],
+                            status.HTTP_200_OK)
         except ObjectDoesNotExist:
             errorMsg = {
                 "message": messages
@@ -111,8 +110,6 @@ class SchemaLedgerDataView(GenericAPIView):
             logger.error(err)
             return Response(errorMsg,
                             status.HTTP_500_INTERNAL_SERVER_ERROR)
-        else:
-            return Response(serializer_class.data, status.HTTP_200_OK)
 
 
 class TransformationLedgerDataView(GenericAPIView):

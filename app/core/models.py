@@ -41,6 +41,13 @@ class TermSet(TimeStampedModel):
 
         super().save(*args, **kwargs)
 
+    def export(self):
+        children = {kid.name: kid.export()
+                    for kid in self.children.filter(status='published')}
+        terms = {term.name: term.export()
+                 for term in self.terms.filter(status='published')}
+        return {**children, **terms}
+
 
 class ChildTermSet(TermSet):
     """Model for Child Termsets"""
@@ -89,6 +96,17 @@ class Term(TimeStampedModel):
             kwargs['update_fields'] = set(update_fields).union({'iri'})
 
         super().save(*args, **kwargs)
+
+    def export(self):
+        attrs = {}
+        attrs['use'] = self.use
+        if(self.data_type is not None):
+            attrs['data_type'] = self.data_type
+        if(self.source is not None):
+            attrs['source'] = self.source
+        if(self.description is not None):
+            attrs['description'] = self.description
+        return {**attrs}
 
 
 class SchemaLedger(TimeStampedModel):

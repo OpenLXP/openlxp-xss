@@ -28,7 +28,7 @@ def create_term_set(sender, instance, created, **kwargs):
 @receiver(post_save, sender=SchemaLedger)
 def update_term_set(sender, instance, created, **kwargs):
     if not created:
-        schemaledger = SchemaLedger.objects.get(schema_iri=instance,)
+        schemaledger = SchemaLedger.objects.get(schema_iri=instance)
         termset = TermSet.objects.get(iri=instance)
         termset.status = schemaledger.status
         termset.updated_by = schemaledger.updated_by

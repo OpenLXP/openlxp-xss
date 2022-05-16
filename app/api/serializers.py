@@ -2,7 +2,7 @@ import logging
 
 from rest_framework import serializers
 
-from core.models import SchemaLedger, TransformationLedger
+from core.models import SchemaLedger, TermSet, TransformationLedger
 
 logger = logging.getLogger('dict_config_logger')
 
@@ -15,6 +15,16 @@ class SchemaLedgerSerializer(serializers.ModelSerializer):
 
         exclude = ('schema_file', 'major_version', 'minor_version',
                    'patch_version',)
+
+
+class TermSetSerializer(serializers.ModelSerializer):
+    """Serializes the TermSet Model"""
+    export = serializers.DictField()
+
+    class Meta:
+        model = TermSet
+
+        fields = ('export',)
 
 
 class TransformationLedgerSerializer(serializers.ModelSerializer):
