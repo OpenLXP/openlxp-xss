@@ -98,6 +98,7 @@ class SchemaLedgerDataView(GenericAPIView):
             # an error serializing or in the response process.
             messages.append(
                 "Error fetching records please check the logs.")
+            return Response(serializer_class.data, status.HTTP_200_OK)
         except ObjectDoesNotExist:
             errorMsg = {
                 "message": messages
@@ -111,8 +112,6 @@ class SchemaLedgerDataView(GenericAPIView):
             logger.error(err)
             return Response(errorMsg,
                             status.HTTP_500_INTERNAL_SERVER_ERROR)
-        else:
-            return Response(serializer_class.data, status.HTTP_200_OK)
 
 
 class TransformationLedgerDataView(GenericAPIView):
