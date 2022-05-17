@@ -3,8 +3,9 @@ import logging
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 
-from core.management.utils.signals_utils import termset_object, update_status
-from core.models import SchemaLedger, TermSet
+from core.management.utils.signals_utils import (termset_map, termset_object,
+                                                 update_status)
+from core.models import SchemaLedger, TermSet, TransformationLedger
 
 logger = logging.getLogger('dict_config_logger')
 
@@ -36,3 +37,16 @@ def update_term_set(sender, instance, created, **kwargs):
 
         update_status(termset, termset.status, termset.updated_by)
         logger.info("TermSet updated")
+
+
+@receiver(post_save, sender=TransformationLedger)
+def map_term_sets(sender, instance, created, **kwargs):
+    if created:
+        tl = TransformationLedger.objects.get(id=instance.id)
+
+        target = TermSet.objects.get(iri=tl.target_schema.schema_iri)
+        source = TermSet.objects.get(iri=tl.source_schema.schema_iri)
+
+        termset_map(target, source, tl.schema_mapping)
+
+        logger.info("TermSet mapped")

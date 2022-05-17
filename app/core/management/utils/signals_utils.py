@@ -1,4 +1,4 @@
-from core.models import ChildTermSet, Term
+from core.models import ChildTermSet, Term, TermSet
 
 
 def create_child_termset(termset_name, parent_iri, status, updated_by):
@@ -64,3 +64,31 @@ def update_status(termset, status, updated_by):
     else:
         term = Term.objects.filter(term_set=termset)
         term.update(status=status, updated_by=updated_by)
+
+
+def termset_map(target, source, mapping):
+    """
+    recursive function to create mappings between schemas
+    """
+    for kid in mapping:
+        # if the value in the dict is a string, the key is the term
+        if isinstance(mapping[kid], str):
+            path = mapping[kid].split('.')
+            source_ts = TermSet.objects.get(iri=source.iri)
+
+            # traverse the source termsets
+            for step in path[:-1]:
+                source_ts = source_ts.children.get(name=step.replace(' ', '_'))
+
+            # get the terms
+            source_term = source_ts.terms.get(name=path[-1].replace(' ', '_'))
+            target_term = target.terms.get(name=kid.replace(' ', '_'))
+
+            # add the term connection
+            target_term.mapping.add(source_term)
+            target_term.save()
+
+        # else the key is a child termest
+        else:
+            termset_map(target.children.get(
+                name=kid.replace(' ', '_')), source, mapping[kid])
