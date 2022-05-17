@@ -61,6 +61,6 @@ def update_status(termset, status, updated_by):
         for child_element in child_termset:
             child_termset.update(status=status, updated_by=updated_by)
             update_status(child_element, status, updated_by)
-    else:
-        term = Term.objects.filter(term_set=termset)
-        term.update(status=status, updated_by=updated_by)
+
+    term = termset.terms
+    term.update(status=status, updated_by=updated_by)

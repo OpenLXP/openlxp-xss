@@ -12,15 +12,14 @@ logger = logging.getLogger('dict_config_logger')
 @receiver(post_save, sender=SchemaLedger)
 def create_term_set(sender, instance, created, **kwargs):
     if created:
-        schemaledger = SchemaLedger.objects.get(schema_iri=instance)
-
-        termset = TermSet.objects.create(name=schemaledger.schema_name,
-                                         version=schemaledger.version,
-                                         status=schemaledger.status,
-                                         updated_by=schemaledger.updated_by)
+        termset = TermSet.objects.create(name=instance.schema_name,
+                                         version=instance.version,
+                                         status=instance.status,
+                                         updated_by=instance.updated_by)
         termset.save()
-        termset_object(schemaledger.metadata, termset, schemaledger.status,
-                       schemaledger.updated_by)
+
+        termset_object(instance.metadata, termset, instance.status,
+                       instance.updated_by)
 
         logger.info("TermSet created")
 
@@ -28,11 +27,21 @@ def create_term_set(sender, instance, created, **kwargs):
 @receiver(post_save, sender=SchemaLedger)
 def update_term_set(sender, instance, created, **kwargs):
     if not created:
-        schemaledger = SchemaLedger.objects.get(schema_iri=instance,)
         termset = TermSet.objects.get(iri=instance)
-        termset.status = schemaledger.status
-        termset.updated_by = schemaledger.updated_by
+        termset.status = instance.status
+        termset.updated_by = instance.updated_by
         termset.save()
 
         update_status(termset, termset.status, termset.updated_by)
         logger.info("TermSet updated")
+
+
+@receiver(post_save, sender=TermSet)
+def update_schema_ledger(sender, instance, created, **kwargs):
+    if not created:
+        SchemaLedger.objects.filter(schema_iri=instance.iri). \
+            update(status=instance.status,
+                   updated_by=instance.updated_by)
+
+        update_status(instance, instance.status, instance.updated_by)
+        logger.info("SchemaLedger updated")
