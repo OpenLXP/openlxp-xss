@@ -76,7 +76,7 @@ def termset_map(target, source, mapping):
             path = mapping[kid].split('.')
             source_ts = TermSet.objects.get(iri=source.iri)
 
-            # traverse the source termsets
+            # traverse the source term sets
             for step in path[:-1]:
                 source_ts = source_ts.children.get(name=step.replace(' ', '_'))
 
@@ -88,7 +88,7 @@ def termset_map(target, source, mapping):
             target_term.mapping.add(source_term)
             target_term.save()
 
-        # else the key is a child termest
+        # else the key is a child term set
         else:
             termset_map(target.children.get(
                 name=kid.replace(' ', '_')), source, mapping[kid])

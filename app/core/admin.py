@@ -38,9 +38,9 @@ class TransformationLedgerAdmin(admin.ModelAdmin):
                                                                obj,
                                                                **kwargs)
         form.base_fields['source_schema'].label_from_instance = \
-            lambda obj: "{} {}".format(obj.schema_name, obj.version)
+            lambda obj: "{}".format(obj.iri)
         form.base_fields['target_schema'].label_from_instance = \
-            lambda obj: "{} {}".format(obj.schema_name, obj.version)
+            lambda obj: "{}".format(obj.iri)
         return form
 
 
@@ -53,6 +53,8 @@ class TermSetAdmin(admin.ModelAdmin):
         ('Availability', {'fields': ('status',)}),
     )
     readonly_fields = ('iri', 'updated_by', 'modified',)
+    search_fields = ['iri', ]
+    list_filter = ('status', 'name')
 
     def save_model(self, request, obj, form, change):
         """Overide save_model to pass along current user"""
@@ -74,6 +76,8 @@ class ChildTermSetAdmin(TermSetAdmin):
         ('Availability', {'fields': ('status',)}),
         ('Parent', {'fields': ('parent_term_set',)}),
     )
+    list_filter = ('status', ('parent_term_set',
+                   admin.RelatedOnlyFieldListFilter))
 
     def get_queryset(self, request):
         return super(TermSetAdmin, self).get_queryset(request)
@@ -92,6 +96,8 @@ class TermAdmin(admin.ModelAdmin):
     )
     readonly_fields = ('iri', 'updated_by', 'modified',)
     filter_horizontal = ('mapping',)
+    search_fields = ['iri', ]
+    list_filter = ('status', ('term_set', admin.RelatedOnlyFieldListFilter))
 
     def save_model(self, request, obj, form, change):
         """Overide save_model to pass along current user"""

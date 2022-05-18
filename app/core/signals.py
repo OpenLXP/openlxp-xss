@@ -42,11 +42,9 @@ def update_term_set(sender, instance, created, **kwargs):
 @receiver(post_save, sender=TransformationLedger)
 def map_term_sets(sender, instance, created, **kwargs):
     if created:
-        tl = TransformationLedger.objects.get(id=instance.id)
+        target = instance.target_schema
+        source = instance.source_schema
 
-        target = TermSet.objects.get(iri=tl.target_schema.schema_iri)
-        source = TermSet.objects.get(iri=tl.source_schema.schema_iri)
+        termset_map(target, source, instance.schema_mapping)
 
-        termset_map(target, source, tl.schema_mapping)
-
-        logger.info("TermSet mapped")
+        logger.info("Term Sets mapped")
