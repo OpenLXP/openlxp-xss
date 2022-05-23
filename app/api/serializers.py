@@ -19,12 +19,12 @@ class SchemaLedgerSerializer(serializers.ModelSerializer):
 
 class TermSetSerializer(serializers.ModelSerializer):
     """Serializes the TermSet Model"""
-    export = serializers.DictField()
+    schema = serializers.DictField(source='export')
 
     class Meta:
         model = TermSet
 
-        fields = ('export',)
+        fields = ('iri', 'name', 'version', 'schema')
 
 
 class TransformationLedgerSerializer(serializers.ModelSerializer):
