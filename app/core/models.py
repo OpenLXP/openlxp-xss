@@ -34,6 +34,7 @@ class TermSet(TimeStampedModel):
 
     def save(self, *args, **kwargs):
         """Generate iri for item"""
+        self.name = self.name.replace(' ', '_')
         self.iri = 'xss:' + self.version + '@' + self.name
         update_fields = kwargs.get('update_fields', None)
         if update_fields:
@@ -56,6 +57,7 @@ class ChildTermSet(TermSet):
 
     def save(self, *args, **kwargs):
         """Generate iri for item"""
+        self.name = self.name.replace(' ', '_')
         self.iri = self.parent_term_set.iri + '/' + self.name
         self.version = self.parent_term_set.version
         update_fields = kwargs.get('update_fields', None)
@@ -75,12 +77,12 @@ class Term(TimeStampedModel):
                    ('Recommended', 'Recommended'),
                    ]
     name = models.SlugField(max_length=255, allow_unicode=True)
-    description = models.TextField()
+    description = models.TextField(null=True, blank=True)
     iri = models.SlugField(max_length=255, unique=True,
                            allow_unicode=True, primary_key=True)
-    data_type = models.CharField(max_length=255)
+    data_type = models.CharField(max_length=255, null=True, blank=True)
     use = models.CharField(max_length=255, choices=USE_CHOICES)
-    source = models.CharField(max_length=255)
+    source = models.CharField(max_length=255, null=True, blank=True)
     term_set = models.ForeignKey(
         TermSet, on_delete=models.CASCADE, related_name='terms')
     mapping = models.ManyToManyField('self', blank=True)
@@ -88,8 +90,16 @@ class Term(TimeStampedModel):
         settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True)
     status = models.CharField(max_length=255, choices=STATUS_CHOICES)
 
+    def root_term_set(self):
+        """Get iri of the root Term Set for the current Term"""
+        if "/" in self.iri:
+            return self.iri[:self.iri.index('/')]
+        else:
+            return self.iri[:self.iri.index('?')]
+
     def save(self, *args, **kwargs):
         """Generate iri for item"""
+        self.name = self.name.replace(' ', '_')
         self.iri = self.term_set.iri + '?' + self.name
         update_fields = kwargs.get('update_fields', None)
         if update_fields:
