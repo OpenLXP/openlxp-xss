@@ -27,17 +27,17 @@ class ViewTests(TestSetUp):
             name should return the latest version"""
         url = "%s?name=test_name" % (reverse('api:schemaledger'))
         self.sourceSchema.save()
-        with patch('api.views.SchemaLedger.objects') as schemaObj:
+        with patch('api.views.TermSet.objects') as schemaObj:
             schemaObj.return_value = schemaObj
             schemaObj.all.return_value = schemaObj
             schemaObj.filter.return_value = schemaObj
             schemaObj.order_by.return_value = schemaObj
-            schemaObj.first.return_value = self.sourceSchema
+            schemaObj.first.return_value = self.sourceTS
 
             response = self.client.get(url)
             responseDict = json.loads(response.content)
             self.assertEqual(response.status_code, status.HTTP_200_OK)
-            self.assertEqual(responseDict["schema_name"], self.schema_name)
+            self.assertEqual(responseDict["iri"], self.sourceTS.iri)
 
     def test_schemaledger_requests_no_version_found(self):
         """Test that making a get request to the schema api with a version
@@ -60,17 +60,17 @@ class ViewTests(TestSetUp):
         self.sourceSchema.save()
         url = f"%s?iri={self.sourceSchema.schema_iri}" % (
             reverse('api:schemaledger'))
-        with patch('api.views.SchemaLedger.objects') as schemaObj:
+        with patch('api.views.TermSet.objects') as schemaObj:
             schemaObj.return_value = schemaObj
             schemaObj.all.return_value = schemaObj
             schemaObj.filter.return_value = schemaObj
             schemaObj.order_by.return_value = schemaObj
-            schemaObj.first.return_value = self.sourceSchema
+            schemaObj.first.return_value = self.sourceTS
 
             response = self.client.get(url)
             responseDict = json.loads(response.content)
             self.assertEqual(response.status_code, status.HTTP_200_OK)
-            self.assertEqual(responseDict["schema_name"], self.schema_name)
+            self.assertEqual(responseDict["iri"], self.sourceTS.iri)
 
     def test_schemaledger_requests_iri_fail(self):
         """Test that making a get request to the schema api with just an
@@ -86,18 +86,18 @@ class ViewTests(TestSetUp):
             query params returns a valid object"""
         url = "%s?name=test_name&version=1.2.3" % (reverse('api:schemaledger'))
         self.sourceSchema.save()
-        with patch('api.views.SchemaLedger.objects') as schemaObj:
+        with patch('api.views.TermSet.objects') as schemaObj:
             schemaObj.return_value = schemaObj
             schemaObj.all.return_value = schemaObj
             schemaObj.filter.return_value = schemaObj
             schemaObj.order_by.return_value = schemaObj
-            schemaObj.first.return_value = self.sourceSchema
+            schemaObj.first.return_value = self.sourceTS
 
             response = self.client.get(url)
             responseDict = json.loads(response.content)
 
             self.assertEqual(response.status_code, status.HTTP_200_OK)
-            self.assertEqual(responseDict["schema_name"], self.schema_name)
+            self.assertEqual(responseDict["iri"], self.sourceTS.iri)
 
     def test_schemaledger_requests_no_schema_found(self):
         """Test that making a get request to the schema api with just a schema

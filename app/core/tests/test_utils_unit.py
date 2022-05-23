@@ -6,6 +6,7 @@ from django.test import tag
 from ..management.utils.signals_utils import (create_child_termset,
                                               create_terms, term_object,
                                               termset_object, update_status)
+from ..management.utils.xss_helper import sort_version
 from ..models import ChildTermSet, TermSet
 from .test_setup import TestSetUp
 
@@ -73,3 +74,16 @@ class UtilsTests(TestSetUp):
         child_termset = ChildTermSet.objects.get(parent_term_set=termset)
 
         self.assertEqual(child_termset.status, "Retired")
+
+    def test_sort_version(self):
+        """Test function to sort TermSets by version"""
+        one = TermSet(name="one", version="1.1.1")
+        two = TermSet(name="two", version="2.2.2")
+        three = TermSet(name="three", version="2.2.3")
+        ts_list = [one, three, two]
+
+        sort_version(ts_list, reverse_order=True)
+        self.assertEqual(ts_list, [three, two, one])
+
+        sort_version(ts_list)
+        self.assertEqual(ts_list, [one, two, three])

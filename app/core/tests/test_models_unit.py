@@ -1,3 +1,5 @@
+from unittest.mock import patch
+
 from django.core.exceptions import ValidationError
 from django.test import tag
 
@@ -45,25 +47,28 @@ class ModelTests(TestSetUp):
     def test_transformation_ledger(self):
         """Test that creating a transformationLedger is successful"""
 
-        source_schema_name = self.schema
-        target_schema_name = self.schema
-        schema_mapping = {
-            "test": "test"
-        }
-        status = "published"
+        with patch('core.signals.termset_map'):
+            self.termset.save()
 
-        mapping = \
-            TransformationLedger(source_schema=source_schema_name,
-                                 target_schema=target_schema_name,
-                                 schema_mapping=schema_mapping,
-                                 status=status)
+            source_schema_name = self.termset
+            target_schema_name = self.termset
+            schema_mapping = {
+                "test": "test"
+            }
+            status = "published"
 
-        mapping.save()
+            mapping = \
+                TransformationLedger(source_schema=source_schema_name,
+                                     target_schema=target_schema_name,
+                                     schema_mapping=schema_mapping,
+                                     status=status)
 
-        self.assertEqual(mapping.source_schema, source_schema_name)
-        self.assertEqual(mapping.target_schema, target_schema_name)
-        self.assertEqual(mapping.schema_mapping, schema_mapping)
-        self.assertEqual(mapping.status, status)
+            mapping.save()
+
+            self.assertEqual(mapping.source_schema, source_schema_name)
+            self.assertEqual(mapping.target_schema, target_schema_name)
+            self.assertEqual(mapping.schema_mapping, schema_mapping)
+            self.assertEqual(mapping.status, status)
 
     def test_term_set(self):
         """Test that creating a TermSet is successful"""
@@ -112,6 +117,8 @@ class ModelTests(TestSetUp):
         t_status = "published"
 
         expected_iri = "xss:" + t_ts.version + "@" + t_ts.name + "?" + t_name
+        expected_export = {'use': t_use, 'data_type': t_data_type,
+                           'source': t_source, 'description': t_description}
 
         term = Term(name=t_name, description=t_description,
                     data_type=t_data_type, use=t_use,
@@ -126,6 +133,8 @@ class ModelTests(TestSetUp):
         self.assertEquals(term.source, t_source)
         self.assertEquals(term.term_set, t_ts)
         self.assertEquals(term.status, t_status)
+        self.assertDictEqual(term.export(), expected_export,
+                             "Incorrect Term export")
 
     def test_validate_version_pass(self):
         """Test that validate version passes correct formats"""

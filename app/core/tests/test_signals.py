@@ -2,7 +2,7 @@ from unittest.mock import patch
 
 from django.test import tag
 
-from ..models import SchemaLedger, TermSet
+from ..models import SchemaLedger, TermSet, TransformationLedger
 from .test_setup import TestSetUp
 
 
@@ -37,3 +37,22 @@ class SignalTests(TestSetUp):
 
             termset = TermSet.objects.get(name=self.schema_name)
             self.assertEqual(termset.status, 'retired')
+
+    def test_map_term_sets(self):
+        """Test to verify mappings are kicked off"""
+
+        with patch('core.signals.termset_map') as map,\
+                patch('core.signals.create_term_set'), \
+                patch('core.signals.update_term_set'):
+            source = TermSet(name='source', version='1.0.0')
+            source.save()
+            target = TermSet(name='target', version='0.0.1')
+            target.save()
+
+            TransformationLedger(source_schema=source, target_schema=target,
+                                 status=TransformationLedger.
+                                 SCHEMA_STATUS_CHOICES[0][0],
+                                 schema_mapping="").save()
+            source.delete()
+            target.delete()
+            map.assert_called_once()
