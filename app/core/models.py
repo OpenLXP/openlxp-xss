@@ -49,6 +49,22 @@ class TermSet(TimeStampedModel):
                  for term in self.terms.filter(status='published')}
         return {**children, **terms}
 
+    def mapped_to(self, target_root):
+        """Return dict of Terms mapped to anything in target_root string"""
+
+        # filter out children with no mapped terms
+        children = {kid.name: kid.mapped_to(target_root)
+                    for kid in self.children.filter(status='published')}
+        filtered_children = dict(
+            filter(lambda kid: len(kid[1]) != 0, children.items()))
+
+        # filter out terms that do not have a mapping
+        terms = {term.name: term.mapped_to(target_root)
+                 for term in self.terms.filter(status='published')}
+        filtered_terms = dict(
+            filter(lambda term: term[1] is not None, terms.items()))
+        return {**filtered_children, **filtered_terms}
+
 
 class ChildTermSet(TermSet):
     """Model for Child Termsets"""
@@ -108,6 +124,7 @@ class Term(TimeStampedModel):
         super().save(*args, **kwargs)
 
     def export(self):
+        """convert key attributes of the Term to a dict"""
         attrs = {}
         attrs['use'] = self.use
         if(self.data_type is not None and self.data_type != ''):
@@ -117,6 +134,26 @@ class Term(TimeStampedModel):
         if(self.description is not None and self.description != ''):
             attrs['description'] = self.description
         return {**attrs}
+
+    def path(self):
+        """Get the path of the Term"""
+        path = self.name
+        ts = self.term_set
+
+        # traverse the Term Sets to the root
+        try:
+            while ts.childtermset:
+                path = ts.name + '.' + path
+                ts = ts.childtermset.parent_term_set
+        except ChildTermSet.DoesNotExist:
+            return path
+
+    def mapped_to(self, target_root):
+        """Return path if Term is mapped to anything in target_root string"""
+        target_map = self.mapping.filter(iri__startswith=target_root)
+        if target_map.exists():
+            return target_map.first().path()
+        return None
 
 
 class SchemaLedger(TimeStampedModel):
