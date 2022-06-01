@@ -129,7 +129,7 @@ class ViewTests(TestSetUp):
         url = ("%s?sourceName=test&sourceVersion=1.0.2&targetName=test2&" +
                "targetVersion=1.0.0") % (reverse('api:transformationledger'))
 
-        with patch('api.views.TransformationLedger.objects') as mappingObj:
+        with patch('api.views.TermSet.objects') as mappingObj:
             mappingObj.return_value = mappingObj
             mappingObj.all.return_value = mappingObj
             mappingObj.filter.return_value = None
@@ -163,11 +163,12 @@ class ViewTests(TestSetUp):
         self.sourceSchema.save()
         self.targetSchema.save()
         self.mapping.save()
-        with patch('api.views.TransformationLedger.objects') as mappingObj:
+        with patch('api.views.TermSet.objects') as mappingObj:
             mappingObj.return_value = mappingObj
             mappingObj.all.return_value = mappingObj
             mappingObj.filter.return_value = mappingObj
-            mappingObj.first.return_value = self.mapping
+            mappingObj.first.side_effect = [
+                self.sourceSchema, self.targetSchema]
 
             response = self.client.get(url)
             responseDict = json.loads(response.content)
@@ -185,11 +186,12 @@ class ViewTests(TestSetUp):
         self.sourceSchema.save()
         self.targetSchema.save()
         self.mapping.save()
-        with patch('api.views.TransformationLedger.objects') as mappingObj:
+        with patch('api.views.TermSet.objects') as mappingObj:
             mappingObj.return_value = mappingObj
             mappingObj.all.return_value = mappingObj
             mappingObj.filter.return_value = mappingObj
-            mappingObj.first.return_value = self.mapping
+            mappingObj.first.side_effect = [
+                self.sourceSchema, self.targetSchema]
 
             response = self.client.get(url)
             responseDict = json.loads(response.content)
@@ -243,11 +245,12 @@ class ViewTests(TestSetUp):
         url = (f"%s?sourceIRI={self.sourceSchema.schema_iri}&"
                f"targetIRI={self.targetSchema.schema_iri}") % (
             reverse('api:transformationledger'))
-        with patch('api.views.TransformationLedger.objects') as mappingObj:
+        with patch('api.views.TermSet.objects') as mappingObj:
             mappingObj.return_value = mappingObj
             mappingObj.all.return_value = mappingObj
             mappingObj.filter.return_value = mappingObj
-            mappingObj.first.return_value = self.mapping
+            mappingObj.first.side_effect = [
+                self.sourceSchema, self.targetSchema]
 
             response = self.client.get(url)
             responseDict = json.loads(response.content)
@@ -261,13 +264,13 @@ class ViewTests(TestSetUp):
             fails correctly when no mapping with source exists"""
         self.sourceSchema.save()
         self.targetSchema.save()
-        url = (f"%s?sourceIRI={self.sourceSchema.schema_iri}&"
+        url = (f"%s?sourceIRI=badIRI&"
                f"targetIRI={self.targetSchema.schema_iri}") % (
             reverse('api:transformationledger'))
         response = self.client.get(url)
         responseDict = json.loads(response.content)
         expected_error = ["Error; no schema found with the iri " +
-                          f"'{self.sourceSchema.schema_iri}'"]
+                          "'badIRI'"]
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(responseDict['message'], expected_error)
 

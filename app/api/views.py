@@ -165,7 +165,7 @@ class TransformationLedgerDataView(GenericAPIView):
                     {
                         'source': source_qs.first().iri,
                         'target': target_qs.first().iri,
-                        'mapping': mapping_dict
+                        'schema_mapping': mapping_dict
                     }, status.HTTP_200_OK)
         else:
             logger.error(messages)
