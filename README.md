@@ -35,17 +35,7 @@ This component responsible for managing pertinent object/record metadata schemas
 
 `DJANGO_SUPERUSER_EMAIL` -Django admin user email
 
-`AWS_ACCESS_KEY_ID` - AWS access keys
-
-`AWS_SECRET_ACCESS_KEY` - AWS access password
-
-`AWS_DEFAULT_REGION` - AWS region
-
 `SECRET_KEY_VAL` -Django Secret key to put in Settings.py
-
-`CERT_VOLUME` - Path for the where all the security certificates are stored
-
-`LOG_PATH` - Log path were all the app logs will get stored
 
 
 # Installation
@@ -82,11 +72,13 @@ This component responsible for managing pertinent object/record metadata schemas
 
    - `Schema Name` Schema file title
    - `Schema IRI` Schema files corresponding IRI
-   - `Schema File` Upload the Schema file in the required format
+   - `Schema File` Upload the Schema file in the required format(JSON)
    - `Status` Select if the Schema is Published or Retired
    - `Major version` Add the Major value of the schema version
    - `Minor Version` Add the Minor value of the schema version
    - `Patch Version` Add the Patch version number of the schema
+    
+Note :  On uploading the schema file in the required format to the schema ledger the creation of corresponding term set, linked child term set and terms process is triggered.
    
 
 3.  **Add Transformation Ledger:**
@@ -94,8 +86,10 @@ This component responsible for managing pertinent object/record metadata schemas
       *Registry for Maintaining and Managing the Mapping of Schemas*
       - `Source Schema` Select source term set file from drop-down
       - `Target Schema` Select Target term set from drop-down to be mapped to
-      - `Schema Mapping File` Upload the Schema Mapping file to be referenced for mapping in the required format
+      - `Schema Mapping File` Upload the Schema Mapping file to be referenced for mapping in the required format(JSON)
       - `Status` Select if the Schema Mapping is Published or Retired
+    
+Note :  On uploading the Schema Mapping File in the required format to the transformation ledger, this triggers the process of adding the mapping for the corresponding term values.
     
 4. **Add Term set:**
     
