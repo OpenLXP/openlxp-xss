@@ -92,21 +92,64 @@ This component responsible for managing pertinent object/record metadata schemas
 3.  **Add Transformation Ledger:**
     
       *Registry for Maintaining and Managing the Mapping of Schemas*
-      - `Source Schema` Select Schema file from drop-down
-      - `Target Schema` Select Target Schema file from drop-down to be mapped to
+      - `Source Schema` Select source term set file from drop-down
+      - `Target Schema` Select Target term set from drop-down to be mapped to
       - `Schema Mapping File` Upload the Schema Mapping file to be referenced for mapping in the required format
       - `Status` Select if the Schema Mapping is Published or Retired
+    
+4. **Add Term set:**
+    
+    *Term sets supports the concept of a vocabulary in the context of semantic linking*
+    - `Name` Term set title
+    - `IRI` Term set's corresponding IRI
+    - `Version` Add the version number
+    - `Status` Select if the Term set is Published or Retired
+    - `Updated by` User that creates/updates the term set
+    - `Modified` Date & time when term set was created or modified
+    
+5. **Add Child Term set:**
+    
+    *Child term sets is a term set that contains a references to other term-sets (schemas)*
+    - `Name` Term set title
+    - `IRI` Term set's corresponding IRI
+    - `Version` Add the version number
+    - `Status` Select if the Term set is Published or Retired
+    - `Parent term set` Select the reference to the parent term set from the drop down
+    - `Updated by` User that creates/updates the term set
+    - `Modified` Date & time when term set was created or modified
+    
+6. **Add Term:**
+    
+    *A term entity can be seen as a word in our dictionary. This entity captures a unique word/term in a term-set or schema.*
+    - `Name` Term title
+    - `IRI` Term corresponding IRI
+    - `Desciption` Term entity's description
+    - `Data Type` Term entity's corresponding data type
+    - `Use` Term entity's corresponding use case
+    - `Source` Term entity's corresponding source
+    - `Version` Add the version number
+    - `Status` Select if the Term set is Published or Retired
+    - `term set` Select the reference to the parent term set from the drop down
+    - `Mapping` Add mappings between terms entity's of different parent term set
+    - `Updated by` User that creates/updates the term
+    - `Modified` Date & time when term was created or modified
    
 # API's 
  **XSS contains API endpoints which can be called from other components**
  
-      http://localhost:8080/api/schemas/
+Query string parameter: `name` `version` `iri`
+
+      http://localhost:8080/api/schemas/?parameter=parameter_value
     
-*This API fetches the required schema from the repository using the Name and Version parameters*
+
+    
+**This API fetches the required schema from the repository using the Name and Version or IRI parameters**
+
+Query string parameter: `sourceName` `sourceVersion` `sourceIRI` `targetName` `targetVersion` `targetIRI`
 
       http://localhost:8080/api/mappings/
     
-*This API fetches the required mapping schema from the repository using the Source Name, Source Version, Target Name and Target Version parameters*
+*This API fetches the required mapping schema from the repository using the Source Name, Source Version, Target Name and Target Version or source IRI and Target IRI parameters*
    
 # Update
 
