@@ -2,6 +2,7 @@ import json
 import logging
 import os
 import re
+from uuid import uuid4
 
 from django.conf import settings
 from django.core.exceptions import ValidationError
@@ -26,6 +27,7 @@ class TermSet(TimeStampedModel):
                       ('retired', 'retired')]
     iri = models.SlugField(max_length=255, unique=True,
                            allow_unicode=True, primary_key=True)
+    uuid = models.UUIDField(default=uuid4, editable=False, unique=True)
     name = models.SlugField(max_length=255, allow_unicode=True)
     version = models.CharField(max_length=255, validators=[validate_version])
     status = models.CharField(max_length=255, choices=STATUS_CHOICES)
@@ -96,6 +98,7 @@ class Term(TimeStampedModel):
     description = models.TextField(null=True, blank=True)
     iri = models.SlugField(max_length=255, unique=True,
                            allow_unicode=True, primary_key=True)
+    uuid = models.UUIDField(default=uuid4, editable=False, unique=True)
     data_type = models.CharField(max_length=255, null=True, blank=True)
     use = models.CharField(max_length=255, choices=USE_CHOICES)
     source = models.CharField(max_length=255, null=True, blank=True)
@@ -164,6 +167,7 @@ class SchemaLedger(TimeStampedModel):
     schema_name = models.CharField(max_length=255)
     schema_iri = models.SlugField(max_length=255, unique=True,
                                   allow_unicode=True)
+    uuid = models.UUIDField(default=uuid4, editable=False, unique=True)
     schema_file = models.FileField(upload_to='schemas/',
                                    null=True,
                                    blank=True)
@@ -239,6 +243,7 @@ class TransformationLedger(TimeStampedModel):
     target_schema = models.ForeignKey(TermSet,
                                       on_delete=models.CASCADE,
                                       related_name='target_mapping')
+    uuid = models.UUIDField(default=uuid4, editable=False, unique=True)
     schema_mapping_file = models.FileField(upload_to='schemas/',
                                            null=True,
                                            blank=True)

@@ -49,10 +49,10 @@ class TermSetAdmin(admin.ModelAdmin):
     """Admin form for the Term Set model"""
     list_display = ('iri', 'status', 'updated_by', 'modified',)
     fieldsets = (
-        (None, {'fields': ('iri', 'name', 'version',)}),
+        (None, {'fields': ('iri', 'name', 'version', 'uuid',)}),
         ('Availability', {'fields': ('status',)}),
     )
-    readonly_fields = ('iri', 'updated_by', 'modified',)
+    readonly_fields = ('iri', 'updated_by', 'modified', 'uuid',)
     search_fields = ['iri', ]
     list_filter = ('status', 'name')
 
@@ -72,7 +72,7 @@ class ChildTermSetAdmin(TermSetAdmin):
     list_display = ('iri', 'status', 'parent_term_set', 'updated_by',
                     'modified',)
     fieldsets = (
-        (None, {'fields': ('iri', 'name',)}),
+        (None, {'fields': ('iri', 'name', 'uuid',)}),
         ('Availability', {'fields': ('status',)}),
         ('Parent', {'fields': ('parent_term_set',)}),
     )
@@ -89,12 +89,12 @@ class TermAdmin(admin.ModelAdmin):
     list_display = ('iri', 'status', 'term_set', 'updated_by',
                     'modified', )
     fieldsets = (
-        (None, {'fields': ('iri', 'name', 'description', 'status',)}),
+        (None, {'fields': ('iri', 'name', 'uuid', 'description', 'status',)}),
         ('Info', {'fields': ('data_type', 'use', 'source',)}),
         ('Connections', {'fields': ('term_set', 'mapping',)}),
         ('Updated', {'fields': ('updated_by',), })
     )
-    readonly_fields = ('iri', 'updated_by', 'modified',)
+    readonly_fields = ('iri', 'updated_by', 'modified', 'uuid',)
     filter_horizontal = ('mapping',)
     search_fields = ['iri', ]
     list_filter = ('status', ('term_set', admin.RelatedOnlyFieldListFilter))
