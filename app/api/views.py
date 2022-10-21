@@ -7,8 +7,10 @@ from rest_framework.generics import GenericAPIView
 from rest_framework.response import Response
 
 from api.serializers import TermSetSerializer
+from core.management.utils.signals_utils import traverse_data
 from core.management.utils.xss_helper import sort_version
 from core.models import TermSet
+from rest_framework.views import APIView
 
 logger = logging.getLogger('dict_config_logger')
 
@@ -252,3 +254,33 @@ class TransformationLedgerDataView(GenericAPIView):
                                 "with the iri '" + target_iri + "'")
                 raise ObjectDoesNotExist()
         return queryset
+
+
+class SchemaScraper(APIView):
+    """Handles HTTP requests for Supplemental data for XIS"""
+    queryset = TermSet.objects.all().filter(status='published')
+    def post(self, request):
+        """This method defines the API's to save data to the
+        metadata ledger in the XIS"""
+        data = traverse_data(request.data)
+
+        # # Tracking source of changes to metadata/supplementary data
+        # request.data['updated_by'] = 'System'
+        #
+        # data, instance = add_supplemental_ledger(request.data, None)
+        #
+        # serializer = \
+        #     SupplementalLedgerSerializer(instance,
+        #                                  data=data)
+        #
+        # if not serializer.is_valid():
+        #     # If not received send error and bad request status
+        #     logger.info(json.dumps(request.data))
+        #     return Response(serializer.errors,
+        #                     status=status.HTTP_400_BAD_REQUEST)
+
+        # If received save record in ledger and send response of UUID &
+        # status created
+        # serializer.save()
+        return Response(data,
+                        status=status.HTTP_200_OK)

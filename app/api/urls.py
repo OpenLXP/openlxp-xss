@@ -12,4 +12,6 @@ urlpatterns = [
           name='schemaledger'),
      path('mappings/', views.TransformationLedgerDataView.as_view(),
           name='transformationledger'),
+     path('schemascraper/', views.SchemaScraper.as_view(),
+          name='schemascraper'),
 ]

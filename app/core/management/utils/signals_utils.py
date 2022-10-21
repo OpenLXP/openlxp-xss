@@ -1,6 +1,9 @@
 import logging
 
 from core.models import ChildTermSet, Term, TermSet
+import boto3
+
+comprehend = boto3.client('comprehend', 'us-east-2')
 
 logger = logging.getLogger('dict_config_logger')
 
@@ -124,3 +127,75 @@ def __traverse_path(termset, path):
         termset = termset.children.get(
             name=step.replace(' ', '_'))
     return termset
+
+
+def traverse_data(data_dict):
+    """Function to flatten/normalize  data dictionary"""
+
+    # assign flattened json object to variable
+    flatten_dict = {}
+
+    # Check every key elements value in data
+    for element in data_dict:
+        # If Json Field value is a Nested Json
+        if isinstance(data_dict[element], dict):
+            flatten_dict_object(data_dict[element], data_dict, element)
+        # If Json Field value is a list
+        elif isinstance(data_dict[element], list):
+            flatten_list_object(data_dict[element], data_dict, element)
+        # If Json Field value is a string
+        else:
+            update_flattened_object(data_dict[element], data_dict, element)
+
+    return data_dict
+
+
+def flatten_list_object(list_obj, key_val, element):
+    """function to flatten list object"""
+    for i in range(len(list_obj)):
+        if isinstance(list_obj[i], list):
+            flatten_list_object(list_obj[i], list_obj, element
+                                )
+
+        elif isinstance(list_obj[i], dict):
+            flatten_dict_object(list_obj[i], list_obj, element
+                                )
+        else:
+            # print("=========================")
+            # print(list_obj[i], list_obj, element)
+            update_flattened_object(list_obj[i], list_obj, element)
+        break
+
+
+def flatten_dict_object(dict_obj, key_val, element):
+    """function to flatten dictionary object"""
+    for element in dict_obj:
+        if isinstance(dict_obj[element], dict):
+            flatten_dict_object(dict_obj[element], dict_obj, element)
+
+        elif isinstance(dict_obj[element], list):
+            flatten_list_object(dict_obj[element], dict_obj, element)
+
+        else:
+            update_flattened_object(dict_obj[element], dict_obj, element)
+
+
+def update_flattened_object(value, key_val, element):
+    """function to update flattened object to dict variable"""
+    print("---------------------")
+    print(element)
+    if value:
+        desc_type = comprehend.detect_pii_entities(Text=value,
+                                                   LanguageCode='en')
+
+        data_type = str(type(value))
+        try:
+            desc = desc_type["Entities"][0]["Type"]
+        except:
+            desc = None
+    else:
+        desc = None
+        data_type = None
+
+    key_val[element] = {'description': desc,
+                        'use': "Required", 'data_type': data_type}
