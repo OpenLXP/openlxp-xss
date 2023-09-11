@@ -239,28 +239,30 @@ class SchemaLedger(TimeStampedModel):
                 # rewind buffer
                 json_file.seek(0)
 
+                # generate random file name
                 alphabet = string.ascii_letters + string.digits
-
-                tmp_dir = '/tmp/schemas/'
+                tmp_dir = settings.TMP_SCHEMA_DIR
                 random_name = ''.join(secrets.choice(alphabet)
                                       for _ in range(8))
                 full_path = tmp_dir + random_name
 
                 json_file.open('rb')
 
+                # write to file and use magic to check file type
                 with open(full_path, 'wb') as local_file:
                     local_file.write(json_file.read())
                     local_file.flush()
                     mime_type = magic.from_file(full_path, mime=True)
 
-                logger.error(f'type {mime_type}')
-
+                # delete file
                 os.remove(full_path)
+                # log issue if file isn't JSON
                 if 'json' not in mime_type.lower():
                     logger.error('Invalid file type detected. Expected JSON,'
                                  f' found {mime_type}')
                 else:
                     # rewind buffer
+                    json_file.open('rt')
                     json_file.seek(0)
                     json_obj = json.load(json_file)  # deserializes it
 
@@ -333,11 +335,37 @@ class TransformationLedger(TimeStampedModel):
             else:
                 # rewind buffer
                 json_file.seek(0)
-                json_obj = json.load(json_file)  # deserializes it
 
-                # bleaching/cleaning HTML tags from request data
-                json_bleach = bleach_data_to_json(json_obj)
+                # generate random file name
+                alphabet = string.ascii_letters + string.digits
+                tmp_dir = settings.TMP_SCHEMA_DIR
+                random_name = ''.join(secrets.choice(alphabet)
+                                      for _ in range(8))
+                full_path = tmp_dir + random_name
 
-                self.schema_mapping = json_bleach
+                json_file.open('rb')
+
+                # write to file and use magic to check file type
+                with open(full_path, 'wb') as local_file:
+                    local_file.write(json_file.read())
+                    local_file.flush()
+                    mime_type = magic.from_file(full_path, mime=True)
+
+                # delete file
+                os.remove(full_path)
+                # log issue if file isn't JSON
+                if 'json' not in mime_type.lower():
+                    logger.error('Invalid file type detected. Expected JSON,'
+                                 f' found {mime_type}')
+                else:
+                    # rewind buffer
+                    json_file.open('rt')
+                    json_file.seek(0)
+                    json_obj = json.load(json_file)  # deserializes it
+
+                    # bleaching/cleaning HTML tags from request data
+                    json_bleach = bleach_data_to_json(json_obj)
+
+                    self.schema_mapping = json_bleach
             json_file.close()
             self.schema_mapping_file = None
