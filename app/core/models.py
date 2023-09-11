@@ -330,7 +330,7 @@ class TransformationLedger(TimeStampedModel):
                     logger.error(
                         f'{issue_type} {issue} in transform '
                         f'{self.source_schema.iri} to '
-                        '{self.target_schema.iri}')
+                        f'{self.target_schema.iri}')
             # only load json if no issues found
             else:
                 # rewind buffer
