@@ -78,7 +78,7 @@ class ModelTests(TestSetUp):
             self.assertEqual(schema.version, version)
             self.assertEqual(schema.schema_file, None)
             self.assertGreater(log.error.call_count, 0)
-            self.assertIn('EICAR', log.error.call_args[0][0])
+            self.assertIn('EICAR', log.error.call_args[0][2])
             self.assertGreater(clam.instream.call_count, 0)
             self.assertEqual(file, clam.instream.call_args[0][0])
             self.assertIsNone(schema.metadata)
@@ -119,8 +119,8 @@ class ModelTests(TestSetUp):
             self.assertEqual(schema.version, version)
             self.assertEqual(schema.schema_file, None)
             self.assertGreater(log.error.call_count, 0)
-            self.assertIn('Expected JSON, found text/plain',
-                          log.error.call_args[0][0])
+            self.assertIn('text/plain',
+                          log.error.call_args[0][1])
             self.assertIsNone(schema.metadata)
 
     def test_schema_ledger_bleach(self):
@@ -213,7 +213,7 @@ class ModelTests(TestSetUp):
             mapping.clean()
             self.assertEqual(mapping.schema_mapping_file, None)
             self.assertGreater(log.error.call_count, 0)
-            self.assertIn('EICAR', log.error.call_args[0][0])
+            self.assertIn('EICAR', log.error.call_args[0][2])
             self.assertGreater(clam.instream.call_count, 0)
             self.assertEqual(file, clam.instream.call_args[0][0])
             self.assertIsNone(mapping.schema_mapping)
@@ -249,8 +249,8 @@ class ModelTests(TestSetUp):
             mapping.clean()
             self.assertEqual(mapping.schema_mapping_file, None)
             self.assertGreater(log.error.call_count, 0)
-            self.assertIn('Expected JSON, found text/plain',
-                          log.error.call_args[0][0])
+            self.assertIn('text/plain',
+                          log.error.call_args[0][1])
             self.assertIsNone(mapping.schema_mapping)
 
     def test_transformation_ledger_bleach(self):
