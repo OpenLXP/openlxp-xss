@@ -1,5 +1,5 @@
 import json
-from unittest.mock import patch
+from unittest.mock import mock_open, patch
 
 from clamd import EICAR
 from django.core.exceptions import ValidationError
@@ -105,7 +105,11 @@ class ModelTests(TestSetUp):
                               schema_file=file)
 
         with patch('core.models.logger') as log,\
-                patch('core.models.clamd') as clam:
+                patch('core.models.clamd') as clam,\
+                patch('builtins.open', mock_open()),\
+                patch('core.models.magic') as magic,\
+                patch('core.models.os'):
+            magic.from_file.return_value = 'text/plain'
             clam.instream.return_value = {'stream': ('OK', 'OKAY')}
             clam.ClamdUnixSocket.return_value = clam
 
@@ -143,7 +147,11 @@ class ModelTests(TestSetUp):
                               schema_file=file)
 
         with patch('core.models.logger') as log,\
-                patch('core.models.clamd') as clam:
+                patch('core.models.clamd') as clam,\
+                patch('builtins.open', mock_open()),\
+                patch('core.models.magic') as magic,\
+                patch('core.models.os'):
+            magic.from_file.return_value = 'application/json'
             clam.instream.return_value = {'stream': ('OK', 'OKAY')}
             clam.ClamdUnixSocket.return_value = clam
 
@@ -228,7 +236,11 @@ class ModelTests(TestSetUp):
                                  status=status)
 
         with patch('core.models.logger') as log,\
-                patch('core.models.clamd') as clam:
+                patch('core.models.clamd') as clam,\
+                patch('builtins.open', mock_open()),\
+                patch('core.models.magic') as magic,\
+                patch('core.models.os'):
+            magic.from_file.return_value = 'text/plain'
             clam.instream.return_value = {'stream': ('OK', 'OKAY')}
             clam.ClamdUnixSocket.return_value = clam
 
@@ -261,7 +273,11 @@ class ModelTests(TestSetUp):
                                  status=status)
 
         with patch('core.models.logger') as log,\
-                patch('core.models.clamd') as clam:
+                patch('core.models.clamd') as clam,\
+                patch('builtins.open', mock_open()),\
+                patch('core.models.magic') as magic,\
+                patch('core.models.os'):
+            magic.from_file.return_value = 'application/json'
             clam.instream.return_value = {'stream': ('OK', 'OKAY')}
             clam.ClamdUnixSocket.return_value = clam
 
