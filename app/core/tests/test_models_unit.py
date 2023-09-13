@@ -67,7 +67,10 @@ class ModelTests(TestSetUp):
                               patch_version=patch_version,
                               schema_file=file)
 
-        with patch('core.models.logger') as log:
+        with patch('core.models.logger') as log,\
+                patch('core.models.clamd') as clam:
+            clam.instream.return_value = {'stream': ('BAD', 'EICAR')}
+            clam.ClamdUnixSocket.return_value = clam
 
             self.assertEqual(schema.version, '')
             self.assertEqual(schema.schema_file.size, len(EICAR))
@@ -76,6 +79,8 @@ class ModelTests(TestSetUp):
             self.assertEqual(schema.schema_file, None)
             self.assertGreater(log.error.call_count, 0)
             self.assertIn('EICAR', log.error.call_args[0][0])
+            self.assertGreater(clam.instream.call_count, 0)
+            self.assertEqual(file, clam.instream.call_args[0][0])
             self.assertIsNone(schema.metadata)
 
     def test_schema_ledger_non_json(self):
@@ -99,7 +104,10 @@ class ModelTests(TestSetUp):
                               patch_version=patch_version,
                               schema_file=file)
 
-        with patch('core.models.logger') as log:
+        with patch('core.models.logger') as log,\
+                patch('core.models.clamd') as clam:
+            clam.instream.return_value = {'stream': ('OK', 'OKAY')}
+            clam.ClamdUnixSocket.return_value = clam
 
             self.assertEqual(schema.version, '')
             self.assertEqual(schema.schema_file.size, len(file_contents))
@@ -134,7 +142,10 @@ class ModelTests(TestSetUp):
                               patch_version=patch_version,
                               schema_file=file)
 
-        with patch('core.models.logger') as log:
+        with patch('core.models.logger') as log,\
+                patch('core.models.clamd') as clam:
+            clam.instream.return_value = {'stream': ('OK', 'OKAY')}
+            clam.ClamdUnixSocket.return_value = clam
 
             self.assertEqual(schema.version, '')
             self.assertEqual(schema.schema_file.size, len(file_contents))
@@ -185,13 +196,18 @@ class ModelTests(TestSetUp):
                                  schema_mapping_file=file,
                                  status=status)
 
-        with patch('core.models.logger') as log:
+        with patch('core.models.logger') as log,\
+                patch('core.models.clamd') as clam:
+            clam.instream.return_value = {'stream': ('BAD', 'EICAR')}
+            clam.ClamdUnixSocket.return_value = clam
 
             self.assertEqual(mapping.schema_mapping_file.size, len(EICAR))
             mapping.clean()
             self.assertEqual(mapping.schema_mapping_file, None)
             self.assertGreater(log.error.call_count, 0)
             self.assertIn('EICAR', log.error.call_args[0][0])
+            self.assertGreater(clam.instream.call_count, 0)
+            self.assertEqual(file, clam.instream.call_args[0][0])
             self.assertIsNone(mapping.schema_mapping)
 
     def test_transformation_ledger_non_json(self):
@@ -211,7 +227,10 @@ class ModelTests(TestSetUp):
                                  schema_mapping_file=file,
                                  status=status)
 
-        with patch('core.models.logger') as log:
+        with patch('core.models.logger') as log,\
+                patch('core.models.clamd') as clam:
+            clam.instream.return_value = {'stream': ('OK', 'OKAY')}
+            clam.ClamdUnixSocket.return_value = clam
 
             self.assertEqual(mapping.schema_mapping_file.size,
                              len(file_contents))
@@ -241,7 +260,10 @@ class ModelTests(TestSetUp):
                                  schema_mapping_file=file,
                                  status=status)
 
-        with patch('core.models.logger') as log:
+        with patch('core.models.logger') as log,\
+                patch('core.models.clamd') as clam:
+            clam.instream.return_value = {'stream': ('OK', 'OKAY')}
+            clam.ClamdUnixSocket.return_value = clam
 
             self.assertEqual(mapping.schema_mapping_file.size,
                              len(file_contents))
