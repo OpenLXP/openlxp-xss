@@ -22,11 +22,13 @@ djangorestframework>=3.13.0,<3.16.0
 
 flake8>=3.9.0,<4.0.1
 
-gunicorn>=20.0.4,<20.1.0
+# gunicorn>=20.0.4,<20.1.0
+gunicorn>=22.0.0, <22.1.0
 
 isort>=5.11.0, <5.12.0
 
-mysql-connector-python >= 8.0.28, <=8.0.29
+# mysql-connector-python >= 8.0.28, <=8.0.29
+mysql-connector-python==8.0.33
 
 openlxp-authentication >=1.1.2, <1.2
 
@@ -34,6 +36,7 @@ python-magic >=0.4.27, <0.5
 
 python-slugify>=8.0.1
 
-requests>=2.25.1,<2.26.0
+# requests>=2.25.1,<2.26.0
+requests>=2.31.0, <2.32.0
 
 text-unidecode>=1.3
