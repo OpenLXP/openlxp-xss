@@ -187,6 +187,9 @@ REST_FRAMEWORK = {
     ],
 }
 
+CSRF_COOKIE_DOMAIN = '.deloitteopenlxp.com'
+CSRF_TRUSTED_ORIGINS = ['https://dev-ldss.deloitteopenlxp.com', ]
+
 AUTHENTICATION_BACKENDS = (
     'django.contrib.auth.backends.ModelBackend',
     'openlxp_authentication.models.SAMLDBAuth',
