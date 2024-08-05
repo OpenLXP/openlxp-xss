@@ -174,6 +174,9 @@ LOGGING = {
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
+CSRF_COOKIE_DOMAIN = os.environ.get('CSRF_COOKIE_DOMAIN')
+CSRF_TRUSTED_ORIGINS = [os.environ.get('CSRF_TRUSTED_ORIGINS')]
+
 AUTH_USER_MODEL = 'users.CustomUser'
 
 REST_FRAMEWORK = {
