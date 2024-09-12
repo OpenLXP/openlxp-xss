@@ -65,7 +65,7 @@ git clone https://github.com/OpenLXP/openlxp-xss.git
     docker-compose up -d --build
     ```
 
-## 3. Configuration for XSS
+## 4. Configuration for XSS
 1. Navigate over to `http://localhost:8000/admin/` in your browser and login to the Django Admin page with the admin credentials set in your `.env` (`DJANGO_SUPERUSER_EMAIL` & `DJANGO_SUPERUSER_PASSWORD`)
 
 2. <u>CORE</u>
@@ -149,7 +149,7 @@ git clone https://github.com/OpenLXP/openlxp-xss.git
 
                 - `Updated by` User that creates/updates the term
 
-## 6. Removing Deployment
+## 5. Removing Deployment
 To destroy the created resources, simply run the command below in your terminal:
     
     
