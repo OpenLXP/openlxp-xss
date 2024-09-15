@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # start-server.sh
 
-/tmp/openlxp-xss/app
+cd /tmp/openlxp-xss/app
 python manage.py waitdb 
 python manage.py migrate 
 python manage.py loaddata admin_theme_data.json 
