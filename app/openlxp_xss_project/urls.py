@@ -19,6 +19,8 @@ from django.contrib import admin
 from django.urls import include, re_path
 
 urlpatterns = [
+    re_path('admin/doc/', include('django.contrib.admindocs.urls')),
+    # url('', include('openlxp_authentication.urls')),
     re_path('admin/', admin.site.urls),
     re_path('api/', include('api.urls')),
     re_path('api/auth/', include('users.urls')),
