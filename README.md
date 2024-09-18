@@ -86,70 +86,70 @@ git clone -b p1-ironbank https://github.com/OpenLXP/openlxp-xss.git
 
     ```
     services:
-  db-xss:
-    image: mysql:8.0.36
-    ports:
-      - '3308:3308'
-    expose:
-      - '3308'
-    environment:
-      MYSQL_DATABASE: "${DB_NAME}"
-      #MYSQL_USER: 'root'
-      MYSQL_PASSWORD: "${DB_PASSWORD}"
-      MYSQL_ROOT_PASSWORD: "${DB_ROOT_PASSWORD}"
-      # MYSQL_HOST: ''
+      db-xss:
+        image: mysql:8.0.36
+        ports:
+          - '3308:3308'
+        expose:
+          - '3308'
+        environment:
+          MYSQL_DATABASE: "${DB_NAME}"
+          #MYSQL_USER: 'root'
+          MYSQL_PASSWORD: "${DB_PASSWORD}"
+          MYSQL_ROOT_PASSWORD: "${DB_ROOT_PASSWORD}"
+          # MYSQL_HOST: ''
+        networks:
+          - openlxp
+        
+      app:
+        # container_name: openlxp-xss
+        build:
+          context: registry1.dso.mil/ironbank/adl-ousd/ecc-openlxp/ecc-openlxp-xss
+        ports:
+          - "8010:8020"
+        command: >
+          sh -c ". /tmp/start-app.sh"
+        environment:
+          DB_NAME: "${DB_NAME}"
+          DB_USER: "${DB_USER}"
+          DB_PASSWORD: "${DB_PASSWORD}"
+          DB_HOST: "${DB_HOST}"
+          DJANGO_SUPERUSER_USERNAME: "${DJANGO_SUPERUSER_USERNAME}"
+          DJANGO_SUPERUSER_PASSWORD: "${DJANGO_SUPERUSER_PASSWORD}"
+          DJANGO_SUPERUSER_EMAIL: "${DJANGO_SUPERUSER_EMAIL}"
+          ENTITY_ID: "${ENTITY_ID}"
+          LOG_PATH: "${LOG_PATH}"
+          LOGIN_REDIRECT_URL: "${LOGIN_REDIRECT_URL}"
+          SECRET_KEY_VAL: "${SECRET_KEY_VAL}"
+          SP_PUBLIC_CERT: "${SP_PUBLIC_CERT}"
+          SP_PRIVATE_KEY: "${SP_PRIVATE_KEY}"
+        volumes:
+          - shared-app-data:/tmp/openlxp-xss
+        depends_on:
+          - db-xss
+        networks:
+          - openlxp
+      
+      nginx:
+        image: nginx:latest
+        ports: 
+          - "8011:8020"
+        volumes: 
+          - ./nginx.default:/etc/nginx/conf.d/default.conf
+          - shared-app-data:/tmp/openlxp-xss
+        depends_on:
+          - app
+        networks:
+          - openlxp
+      
     networks:
-      - openlxp
+      openlxp:
+        external: true
     
-  app:
-    # container_name: openlxp-xss
-    build:
-      context: registry1.dso.mil/ironbank/adl-ousd/ecc-openlxp/ecc-openlxp-xss
-    ports:
-      - "8010:8020"
-    command: >
-      sh -c ". /tmp/start-app.sh"
-    environment:
-      DB_NAME: "${DB_NAME}"
-      DB_USER: "${DB_USER}"
-      DB_PASSWORD: "${DB_PASSWORD}"
-      DB_HOST: "${DB_HOST}"
-      DJANGO_SUPERUSER_USERNAME: "${DJANGO_SUPERUSER_USERNAME}"
-      DJANGO_SUPERUSER_PASSWORD: "${DJANGO_SUPERUSER_PASSWORD}"
-      DJANGO_SUPERUSER_EMAIL: "${DJANGO_SUPERUSER_EMAIL}"
-      ENTITY_ID: "${ENTITY_ID}"
-      LOG_PATH: "${LOG_PATH}"
-      LOGIN_REDIRECT_URL: "${LOGIN_REDIRECT_URL}"
-      SECRET_KEY_VAL: "${SECRET_KEY_VAL}"
-      SP_PUBLIC_CERT: "${SP_PUBLIC_CERT}"
-      SP_PRIVATE_KEY: "${SP_PRIVATE_KEY}"
     volumes:
-      - shared-app-data:/tmp/openlxp-xss
-    depends_on:
-      - db-xss
-    networks:
-      - openlxp
-  
-  nginx:
-    image: nginx:latest
-    ports: 
-      - "8011:8020"
-    volumes: 
-      - ./nginx.default:/etc/nginx/conf.d/default.conf
-      - shared-app-data:/tmp/openlxp-xss
-    depends_on:
-      - app
-    networks:
-      - openlxp
-  
-networks:
-  openlxp:
-    external: true
-
-volumes:
-  shared-app-data:
-  data01:
-    driver: local  
+      shared-app-data:
+      data01:
+        driver: local  
     ```
 
 
