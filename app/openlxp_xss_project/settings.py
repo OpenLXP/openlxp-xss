@@ -43,11 +43,13 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.admindocs',
     'corsheaders',
     'rest_framework',
     'rest_framework.authtoken',
     'core.apps.CoreConfig',
     'api',
+    'health_check', 
     'users',
     'social_django',
     'openlxp_authentication',
@@ -61,6 +63,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'django.contrib.admindocs.middleware.XViewMiddleware',
 ]
 
 ROOT_URLCONF = 'openlxp_xss_project.urls'
@@ -184,6 +187,11 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.SessionAuthentication',
     ],
 }
+
+CSRF_COOKIE_DOMAIN = '.deloitteopenlxp.com'
+CSRF_TRUSTED_ORIGINS = ['https://dev-ldss.deloitteopenlxp.com', ]
+
+SECURE_SSL_REDIRECT = False
 
 AUTHENTICATION_BACKENDS = (
     'django.contrib.auth.backends.ModelBackend',
