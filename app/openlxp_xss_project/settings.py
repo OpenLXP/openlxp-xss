@@ -49,6 +49,7 @@ INSTALLED_APPS = [
     'rest_framework.authtoken',
     'core.apps.CoreConfig',
     'api',
+    'health_check', 
     'users',
     'social_django',
     'openlxp_authentication',
@@ -189,6 +190,8 @@ REST_FRAMEWORK = {
 
 CSRF_COOKIE_DOMAIN = '.deloitteopenlxp.com'
 CSRF_TRUSTED_ORIGINS = ['https://dev-ldss.deloitteopenlxp.com', ]
+
+SECURE_SSL_REDIRECT = False
 
 AUTHENTICATION_BACKENDS = (
     'django.contrib.auth.backends.ModelBackend',
